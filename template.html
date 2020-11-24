@@ -1,27 +1,31 @@
 <html>
 
-<head>
-  <style>
-    body {color:red;}
-  </style>
-</head>
+  <head>
+    <style>
+      .greeting {margin-bottom: 10px;}
+      .paragraph {margin: 1em 0px; font-family: calibri; font-size: 11pt;}
+      .bold {font-weight: bold;}
+      .italic {font-style: italic;}
+      .no-bullet {list-style-type:none;}
+    </style>
+  </head>
 
-<body>
-  Dear $giver_first_name,
-  Thank you for purchasing an Aquarium $membership_level membership as a gift! $recipient_full_name will be notified of the gift and the included benefits via the email address you provided. Your gift plays a critical role in helping us care for our
-  animals, execute our education initiatives and fund our conservation and research efforts.
-  Gift Membership Details
-  • Membership is For: $recipient_full_name
-  • Membership is From: $giver_identification
-  • Gift Message: $gift_message
-  • Membership Level: $membership_level
-  • Membership Expiration Date: $membership_expiration
-  Please note, gift memberships are activated upon purchase.
+  <body>
+    <div class="greeting">Dear $giver_first_name,</div>
+    <div class="paragraph">Thank you for purchasing an Aquarium $membership_level membership as a gift! $recipient_full_name will be notified of the gift and the included benefits via the email address you provided. Your gift plays a critical role in helping us care for our animals, execute our education initiatives and fund our conservation and research efforts.</div>
+    <div class="paragraph bold">Gift Membership Details</div>
+    <ul>
+      <li>Membership is For: $recipient_full_name</li>
+      <li>Membership is From: $giver_identification</li>
+      <li>Gift Message: $gift_message</li>
+      <li>Membership Level: $membership_level</li>
+      <li>Membership Expiration Date: $membership_expiration</li>
+      <li class="bold italic no-bullet">Please note, gift memberships are activated upon purchase.</li>
+    </ul>
 
-  Thank you for sharing the Aquarium member experience with another, and for your support of our mission to connect people to water, wildlife and wild places! Should you need any assistance or have any questions about your gift membership, please
-  feel free to contact us.
-  Sincerely,
-  Kayla
-</body>
+    <div class="paragraph">Thank you for sharing the Aquarium member experience with another, and for your support of our mission to connect people to water, wildlife and wild places! Should you need any assistance or have any questions about your gift membership, please feel free to contact us.</div>
+    <div class="paragraph">Sincerely,</div>
+    <div class="paragraph">Kayla</div>
+  </body>
 
 </html>

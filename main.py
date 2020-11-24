@@ -70,6 +70,7 @@ if __name__ == '__main__':
 
     with open("./template.html", 'r') as f:
         t = Template(f.read())
+
     # get .csv file in current directory
     # load up to reader obj
     # while True
@@ -84,23 +85,23 @@ if __name__ == '__main__':
     #   else, break
     # end program
 
-    # recipient_list = ['mattwebbersemail@gmail.com', 'jake@example.com']
-    #
-    # copies_list = ['mattwebbersemail@gmail.com', 'jake@example.com']
-    #
-    # for i in range(len(recipient_list)):
-    #
-    #     send_outlook_html_mail(recipients=[recipient_list.pop()], subject=MAIL_SUBJECT, body=MAIL_BODY,
-    #                            send_or_display='Display',
-    #                            copies=[copies_list.pop()])
-    #
-    #     x = input('Continue?')
-    #
-    #     if x == 'y':
-    #
-    #         continue
-    #
-    #     else:
-    #
-    #         break
+    recipient_list = ['mattwebbersemail@gmail.com', 'jake@example.com']
+
+    copies_list = ['mattwebbersemail@gmail.com', 'jake@example.com']
+
+    for i in range(len(recipient_list)):
+
+        send_outlook_html_mail(recipients=[recipient_list.pop()], subject=MAIL_SUBJECT, body=t.substitute(a),
+                               send_or_display='Display',
+                               copies=[copies_list.pop()])
+
+        x = input('Continue?')
+
+        if x == 'y':
+
+            continue
+
+        else:
+
+            break
 
