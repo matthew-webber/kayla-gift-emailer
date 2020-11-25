@@ -2,8 +2,8 @@ from string import Template
 import os
 import pathlib
 
-# Hard coded email subject
-MAIL_SUBJECT = 'Thank You for Your Aquarium Gift Membership Purchase!'
+import csv
+
 
 # todo move to custom
 def get_pwd_of_this_file():
@@ -82,6 +82,29 @@ def send_outlook_html_mail(recipients, subject='No Subject', body='Blank', send_
 
 def main():
 
+    # establish globals
+    CSV_ROW_BATCH_SIZE = 5  # the number of rows to take from the CSV file for each iteration
+    START_ROW = 1  # assumes headers on row 1 and data starts on row 2 but w/ zero-index -- therefore: 1
+    MAIL_SUBJECT = 'Thank You for Your Aquarium Gift Membership Purchase!'
+
+    # column numbers as of 11/24
+    FIRSTNAME_COL = 11
+    RECIPIENT_COL = 37
+    GIVER_COL = 38
+    MESSAGE_COl = 50
+    EXPIRATION_COL = 51
+    MEMLEVEL_COL = 54
+    EMAIL_COL = 61
+
+    # establish helper objects
+    working_row_set = []  # contains dicts of rows for which emails are currently being generated
+    reader_storage = []  # takes rows from csv.reader so file can close / # rows determined / etc.
+    im_done = False  # todo refactor terminate program flag name
+    y_n_selectors = dict(  # determine control flow from user input
+        y=['yes', 'y', 'ok', ':)'],
+        n=['no', 'n', ':(']
+    )
+
     # for Mac
     if os.name == 'posix':
         csv_file = find_first_with_ext_in_dir('csv')
@@ -117,6 +140,7 @@ def main():
                 gift_message=row[MESSAGE_COl - 1],
                 membership_expiration=row[EXPIRATION_COL - 1],
                 membership_level=row[MEMLEVEL_COL - 1],
+                email=row[EMAIL_COL - 1],
             ))
 
         # load the template up
@@ -127,13 +151,19 @@ def main():
 
         # for each record, generate an email
         for _ in working_row_set:
-            # todo add email column to the above and remove the testing crap from the kwarg situation below
-            send_outlook_html_mail(recipients=['jake@example.com'], subject=MAIL_SUBJECT, body=t.substitute(_),
-                                   send_or_display='Display',
-                                   copies=['jake@example.com'])
+            if os.name == 'posix':
+                print('////////////////////////////\n///////////////////////////////////')
+                print('NEW MESSAGE')
+                print('recipients : ' + _['email'])
+                print('subject : ' + MAIL_SUBJECT)
+                print('body : \n\n' + t.substitute(_) + '\n\n')
+
+            elif os.name == 'nt':
+                send_outlook_html_mail(recipients=[_['email']], subject=MAIL_SUBJECT, body=t.substitute(_),
+                                       send_or_display='Display')
 
         if im_done == True:
-
+            print(f'Successfully generated {len(working_row_set)} emails!')
             break  # end program
 
         else:
@@ -141,16 +171,17 @@ def main():
             thisthat = True
 
             while thisthat == True:
-
-                x = input('Continue? [y/n]')
+                print(f'Successfully generated {len(working_row_set)} emails!')
+                x = input('Continue? [y/n]  ?: ')
 
                 if x in y_n_selectors.get('y'):
 
-                    continue
+                    thisthat = False
 
                 elif x in y_n_selectors.get('n'):
 
                     pass  # todo - prompt further interaction if 'don't continue'
+                    break
 
                 else:
 
@@ -160,31 +191,9 @@ def main():
                 working_row_set = []
                 continue
 
+
 if __name__ == '__main__':
-
-    import csv
-
-    # establish globals
-    CSV_ROW_BATCH_SIZE = 5  # the number of rows to take from the CSV file for each iteration
-    START_ROW = 1  # assumes headers on row 1 and data starts on row 2 but w/ zero-index -- therefore: 1
-
-    # column numbers as of 11/24
-    FIRSTNAME_COL = 11
-    RECIPIENT_COL = 37
-    GIVER_COL = 38
-    MESSAGE_COl = 50
-    EXPIRATION_COL = 51
-    MEMLEVEL_COL = 54
-
-    # establish helper objects
-    working_row_set = []  # contains dicts of rows for which emails are currently being generated
-    reader_storage = []  # takes rows from csv.reader so file can close / # rows determined / etc.
-    im_done = False  # todo refactor terminate program flag name
-    y_n_selectors = dict(  # determine control flow from user input
-        y=['yes', 'y', 'ok', ':)'],
-        n=['no', 'n', ':(']
-    )
-
+    x = 'this'
     main()
 
 
