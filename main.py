@@ -1,5 +1,7 @@
 from string import Template
-# import win32com.client
+import os
+import pathlib
+import win32com.client
 
 # Hard coded email subject
 MAIL_SUBJECT = 'AUTOMATED Text Python Email without attachments'
@@ -15,6 +17,40 @@ MAIL_BODY = \
     ' </body>' \
     '</html>'
 
+# todo move to custom
+def get_pwd_of_this_file():
+    """
+    Assumes os
+    Gets the pwd of the file running this thing
+    :return: path string
+    """
+
+    return os.path.dirname(os.path.realpath(__file__))
+
+# todo move to custom
+# todo this doesn't really work right if you add a dir to the arguments
+def find_first_with_ext_in_dir(extension, dir=None):
+    """
+    Assumes os, pathlib
+    Returns path of first file matching a given extension in the given dir
+    :param extension: e.g. 'csv', 'pdf', etc.
+    :param dir: path string
+    :return: path string
+    """
+
+    if dir is None:
+        files = os.listdir()
+    else:
+        files = os.listdir(dir)
+
+    if extension[0] != '.':
+        extension = '.' + extension
+
+    for file in files:
+        if pathlib.Path(file).suffix == extension:
+            return f'{get_pwd_of_this_file()}/{file}'
+
+
 
 def send_outlook_html_mail(recipients, subject='No Subject', body='Blank', send_or_display='Display', copies=None):
     """
@@ -26,50 +62,57 @@ def send_outlook_html_mail(recipients, subject='No Subject', body='Blank', send_
     :param copies: list of CCs' email addresses
     :return: None
     """
-    # if len(recipients) > 0 and isinstance(recipient_list, list):
-    #     outlook = win32com.client.Dispatch("Outlook.Application")
-    #
-    #     ol_msg = outlook.CreateItem(0)
-    #
-    #     str_to = ""
-    #     for recipient in recipients:
-    #         str_to += recipient + ";"
-    #
-    #     ol_msg.To = str_to
-    #
-    #     if copies is not None:
-    #         str_cc = ""
-    #         for cc in copies:
-    #             str_cc += cc + ";"
-    #
-    #         ol_msg.CC = str_cc
-    #
-    #     ol_msg.Subject = subject
-    #     ol_msg.HTMLBody = body
-    #
-    #     if send_or_display.upper() == 'SEND':
-    #         ol_msg.Send()
-    #     else:
-    #         ol_msg.Display()
-    # else:
-    #     print('Recipient email address - NOT FOUND')
+    if len(recipients) > 0 and isinstance(recipient_list, list):
+        outlook = win32com.client.Dispatch("Outlook.Application")
+
+        ol_msg = outlook.CreateItem(0)
+
+        str_to = ""
+        for recipient in recipients:
+            str_to += recipient + ";"
+
+        ol_msg.To = str_to
+
+        if copies is not None:
+            str_cc = ""
+            for cc in copies:
+                str_cc += cc + ";"
+
+            ol_msg.CC = str_cc
+
+        ol_msg.Subject = subject
+        ol_msg.HTMLBody = body
+
+        if send_or_display.upper() == 'SEND':
+            ol_msg.Send()
+        else:
+            ol_msg.Display()
+    else:
+        print('Recipient email address - NOT FOUND')
 
 
 if __name__ == '__main__':
 
-    a = dict(
-        giver_first_name='John',
-        membership_level = 'Family',
-        recipient_full_name = 'Darla May',
-        giver_identification = 'Ur luver boy John Boy',
-        gift_message = 'Luv u honey dumplin',
-        membership_expiration = '1/1/2099'
-    )
+    import csv
 
-    from string import Template
+    csv_file = find_first_with_ext_in_dir('csv')
 
-    with open("./template.html", 'r') as f:
-        t = Template(f.read())
+
+
+    # a = dict(
+    #     giver_first_name='John',
+    #     membership_level = 'Family',
+    #     recipient_full_name = 'Darla May',
+    #     giver_identification = 'Ur luver boy John Boy',
+    #     gift_message = 'Luv u honey dumplin',
+    #     membership_expiration = '1/1/2099'
+    # )
+    #
+    # from string import Template
+    #
+    # # with open("./template.html", 'r') as f:
+    # with open("C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\template.html") as f:
+    #     t = Template(f.read())
 
     # get .csv file in current directory
     # load up to reader obj
@@ -85,23 +128,27 @@ if __name__ == '__main__':
     #   else, break
     # end program
 
-    recipient_list = ['mattwebbersemail@gmail.com', 'jake@example.com']
+    # recipient_list = ['mattwebbersemail@gmail.com', 'jake@example.com']
+    # copies_list = ['mattwebbersemail@gmail.com', 'jake@example.com']
 
-    copies_list = ['mattwebbersemail@gmail.com', 'jake@example.com']
+    # recipient_list = ['mattwebbersemail@gmail.com']
+    # copies_list = ['mattwebbersemail@gmail.com']
+    #
+    # for i in range(len(recipient_list)):
+    #
+    #     send_outlook_html_mail(recipients=[recipient_list.pop()], subject=MAIL_SUBJECT, body=t.substitute(a),
+    #                            send_or_display='Display',
+    #                            copies=[copies_list.pop()])
+    #
+    #     # x = input('Continue?')
+        #
+        # if x == 'y':
+        #
+        #     continue
+        #
+        # else:
+        #
+        #     break
 
-    for i in range(len(recipient_list)):
-
-        send_outlook_html_mail(recipients=[recipient_list.pop()], subject=MAIL_SUBJECT, body=t.substitute(a),
-                               send_or_display='Display',
-                               copies=[copies_list.pop()])
-
-        x = input('Continue?')
-
-        if x == 'y':
-
-            continue
-
-        else:
-
-            break
-
+# todo open csv in current directory
+# todo load values for a single row to appropriate object
