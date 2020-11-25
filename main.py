@@ -1,7 +1,6 @@
 from string import Template
 import os
 import pathlib
-import win32com.client
 
 # Hard coded email subject
 MAIL_SUBJECT = 'Thank You for Your Aquarium Gift Membership Purchase!'
@@ -81,32 +80,22 @@ def send_outlook_html_mail(recipients, subject='No Subject', body='Blank', send_
         print('Recipient email address - NOT FOUND')
 
 
-if __name__ == '__main__':
+def main():
 
-    import csv
-
-    # establish globals
-    CSV_ROW_BATCH_SIZE = 5  # the number of rows to take from the CSV file for each iteration
-    START_ROW = 1  # assumes headers on row 1 and data starts on row 2 but w/ zero-index -- therefore: 1
-
-    # column numbers as of 11/24
-    FIRSTNAME_COL = 11
-    RECIPIENT_COL = 37
-    GIVER_COL = 38
-    MESSAGE_COl = 50
-    EXPIRATION_COL = 51
-    MEMLEVEL_COL = 54
-
-    # establish helper objects
-    working_row_set = []  # contains dicts of rows for which emails are currently being generated
-    reader_storage = []
-    im_done = False
+    # for Mac
+    if os.name == 'posix':
+        csv_file = find_first_with_ext_in_dir('csv')
+        giver_template = './giver_template.html'
+        recipient_template = './recipient_template.html'
+    elif os.name == 'nt':
+        csv_file = 'C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\member_data.csv'  # todo refactor when in production
+        giver_template = 'C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\giver_template.html'
+        recipient_template = 'C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\recipient_template.html'
 
     # get csv file full path
     csv_file = find_first_with_ext_in_dir('csv')
 
-    # with open(csv_file, 'r') as f:
-    with open('C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\member_data.csv', 'r') as f:
+    with open(csv_file, 'r') as f:
         member_reader = csv.reader(f)
 
         for row in member_reader:
@@ -133,8 +122,7 @@ if __name__ == '__main__':
         # load the template up
         from string import Template
 
-        # with open("./giver_template.html", 'r') as f:
-        with open("C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\giver_template.html") as f:
+        with open(giver_template) as f:
             t = Template(f.read())
 
         # for each record, generate an email
@@ -145,34 +133,66 @@ if __name__ == '__main__':
                                    copies=['jake@example.com'])
 
         if im_done == True:
-            break
+
+            break  # end program
+
         else:
 
-            x = input('Continue?')
+            thisthat = True
 
-            if x == 'y':
+            while thisthat == True:
 
+                x = input('Continue? [y/n]')
+
+                if x in y_n_selectors.get('y'):
+
+                    continue
+
+                elif x in y_n_selectors.get('n'):
+
+                    pass  # todo - prompt further interaction if 'don't continue'
+
+                else:
+
+                    break
+
+                START_ROW = START_ROW + CSV_ROW_BATCH_SIZE
+                working_row_set = []
                 continue
 
-            else:
+if __name__ == '__main__':
 
-                break
+    import csv
 
-            START_ROW = START_ROW + CSV_ROW_BATCH_SIZE
-            working_row_set = []
-            continue
+    # establish globals
+    CSV_ROW_BATCH_SIZE = 5  # the number of rows to take from the CSV file for each iteration
+    START_ROW = 1  # assumes headers on row 1 and data starts on row 2 but w/ zero-index -- therefore: 1
+
+    # column numbers as of 11/24
+    FIRSTNAME_COL = 11
+    RECIPIENT_COL = 37
+    GIVER_COL = 38
+    MESSAGE_COl = 50
+    EXPIRATION_COL = 51
+    MEMLEVEL_COL = 54
+
+    # establish helper objects
+    working_row_set = []  # contains dicts of rows for which emails are currently being generated
+    reader_storage = []  # takes rows from csv.reader so file can close / # rows determined / etc.
+    im_done = False  # todo refactor terminate program flag name
+    y_n_selectors = dict(  # determine control flow from user input
+        y=['yes', 'y', 'ok', ':)'],
+        n=['no', 'n', ':(']
+    )
+
+    main()
 
 
     # JUST SOME PSEUDO-CODE BELOW
-    # ////////////////////////////
-    # ////////////////////////////
-    # ////////////////////////////
-    # ////////////////////////////
-    # from string import Template
-    #
-    # # with open("./giver_template.html", 'r') as f:
-    # with open("C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\giver_template.html") as f:
-    #     t = Template(f.read())
+    # ///////////////////////////////////////////////////////////////////////////////
+    # ///////////////////////////////////////////////////////////////////////////////
+    # /////////////////////////////////////////////////////////////////////////////////
+    # //////////////////////////////////////////////////////////////////////////////
 
     # get .csv file in current directory
     # load up to reader obj
