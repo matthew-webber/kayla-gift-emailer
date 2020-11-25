@@ -1,23 +1,10 @@
 from string import Template
 import os
 import pathlib
-
-# import win32com.client
+import win32com.client
 
 # Hard coded email subject
-MAIL_SUBJECT = 'AUTOMATED Text Python Email without attachments'
-
-# Hard coded email HTML text
-MAIL_BODY = \
-    '<html> ' \
-    ' <body>' \
-    ' <p><b>Dear</b> Receipient,<br><br>' \
-    ' This is an automatically generated email by <font size="5" color="blue">Python.</font><br>' \
-    ' It is so <del>amazing and</del> fantastic<br>' \
-    ' <strong>Wish you</strong> all the <font size="5" color="green">best</font><br>' \
-    ' </body>' \
-    '</html>'
-
+MAIL_SUBJECT = 'Thank You for Your Aquarium Gift Membership Purchase!'
 
 # todo move to custom
 def get_pwd_of_this_file():
@@ -64,7 +51,8 @@ def send_outlook_html_mail(recipients, subject='No Subject', body='Blank', send_
     :param copies: list of CCs' email addresses
     :return: None
     """
-    if len(recipients) > 0 and isinstance(recipient_list, list):
+    if len(recipients) > 0:
+        # and isinstance(recipient_list, list) \
         outlook = win32com.client.Dispatch("Outlook.Application")
 
         ol_msg = outlook.CreateItem(0)
@@ -117,7 +105,8 @@ if __name__ == '__main__':
     # get csv file full path
     csv_file = find_first_with_ext_in_dir('csv')
 
-    with open(csv_file, 'r') as f:
+    # with open(csv_file, 'r') as f:
+    with open('C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\member_data.csv', 'r') as f:
         member_reader = csv.reader(f)
 
         for row in member_reader:
@@ -132,7 +121,6 @@ if __name__ == '__main__':
             im_done = True
 
         for row in reader_storage[START_ROW:END_ROW]:
-            print(f'printing STORAGE row {row}')
             working_row_set.append(dict(
                 giver_first_name=row[FIRSTNAME_COL - 1],
                 recipient_full_name=row[RECIPIENT_COL - 1],
@@ -142,24 +130,44 @@ if __name__ == '__main__':
                 membership_level=row[MEMLEVEL_COL - 1],
             ))
 
-        print(working_row_set)
+        # load the template up
+        from string import Template
+
+        # with open("./giver_template.html", 'r') as f:
+        with open("C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\giver_template.html") as f:
+            t = Template(f.read())
+
+        # for each record, generate an email
+        for _ in working_row_set:
+            # todo add email column to the above and remove the testing crap from the kwarg situation below
+            send_outlook_html_mail(recipients=['jake@example.com'], subject=MAIL_SUBJECT, body=t.substitute(_),
+                                   send_or_display='Display',
+                                   copies=['jake@example.com'])
 
         if im_done == True:
             break
         else:
+
+            x = input('Continue?')
+
+            if x == 'y':
+
+                continue
+
+            else:
+
+                break
+
             START_ROW = START_ROW + CSV_ROW_BATCH_SIZE
             working_row_set = []
             continue
 
-    # a = dict(
-    #     giver_first_name='John',
-    #     membership_level = 'Family',
-    #     recipient_full_name = 'Darla May',
-    #     giver_identification = 'Ur luver boy John Boy',
-    #     gift_message = 'Luv u honey dumplin',
-    #     membership_expiration = '1/1/2099'
-    # )
-    #
+
+    # JUST SOME PSEUDO-CODE BELOW
+    # ////////////////////////////
+    # ////////////////////////////
+    # ////////////////////////////
+    # ////////////////////////////
     # from string import Template
     #
     # # with open("./giver_template.html", 'r') as f:
@@ -179,25 +187,3 @@ if __name__ == '__main__':
     #   if yes, process next USER_DEFINED_NUMBER rows in same spreadsheet
     #   else, break
     # end program
-
-    # recipient_list = ['mattwebbersemail@gmail.com', 'jake@example.com']
-    # copies_list = ['mattwebbersemail@gmail.com', 'jake@example.com']
-
-    # recipient_list = ['mattwebbersemail@gmail.com']
-    # copies_list = ['mattwebbersemail@gmail.com']
-    #
-    # for i in range(len(recipient_list)):
-    #
-    #     send_outlook_html_mail(recipients=[recipient_list.pop()], subject=MAIL_SUBJECT, body=t.substitute(a),
-    #                            send_or_display='Display',
-    #                            copies=[copies_list.pop()])
-    #
-    #     # x = input('Continue?')
-    #
-    # if x == 'y':
-    #
-    #     continue
-    #
-    # else:
-    #
-    #     break
