@@ -5,17 +5,12 @@ import pathlib
 import csv
 
 
-def posix_run(mail_subject, giver_template_file, recipient_template_file, template_vals):
+def posix_run(mail_subject, recipients, template, template_vals):
     print('////////////////////////////\n///////////////////////////////////')
     print('NEW MESSAGE')
-    print('recipients : ' + template_vals['email'])
+    print('recipients : ' + str(recipients))
     print('subject : ' + mail_subject)
-    with open(giver_template_file, 'r') as f:
-        t1 = Template(f.read())
-    with open(recipient_template_file, 'r') as f:
-        t2 = Template(f.read())
-    print('body : \n\n' + t1.substitute(template_vals) + '\n\n')
-    print('body (RECIPIENT EMAIL) : \n\n' + t2.substitute(template_vals) + '\n\n')  # todo need to pull this out bc the recipients/subject/etc/ will all be different from recipient email to giver email
+    print('body : \n\n' + template.substitute(template_vals) + '\n\n')
 
 # todo move to custom
 def get_pwd_of_this_file():
@@ -97,18 +92,22 @@ def main():
     # establish globals
     CSV_ROW_BATCH_SIZE = 3  # the number of rows to take from the CSV file for each iteration
     START_ROW = 1  # assumes headers on row 1 and data starts on row 2 but w/ zero-index -- therefore: 1
-    MAIL_SUBJECT = 'Thank You for Your Aquarium Gift Membership Purchase!'
+    GIVER_MAIL_SUBJECT = 'Thank You for Your Aquarium Gift Membership Purchase!'
+    RECIPIENT_MAIL_SUBJECT = 'You\'ve Been Given the Gift of Membership to the South Carolina Aquarium!'
 
     # column numbers as of 11/24
-    FIRSTNAME_COL = 11
-    RECIPIENT_COL = 37
-    GIVER_COL = 38
-    MESSAGE_COl = 50
-    EXPIRATION_COL = 51
+    GIVER_FULLNAME_COL = 56  # e.g. "Susan Blender" $gift_giver_fullname
+    GIVER_FIRSTNAME_COL = 11
+    GIVER_EMAIL_COL = 9
+    GIVER_NICKNAME_COL = 38
+
+    RECIPIENT_FULLNAME_COL = 37
+    RECIPIENT_FIRSTNAME_COL = 59  # e.g. "Erica" $recipient_first_name refactor firstname_col above
+    RECIPIENT_EMAIL_COL = 61
+
     MEMLEVEL_COL = 54
-    GIFT_GIVER_NAME_COL = 56  # e.g. "Susan Blender" $gift_giver_fullname
-    FIRSTNAME_RECIPIENT_COL = 59  # e.g. "Erica" $recipient_first_name refactor firstname_col above
-    EMAIL_COL = 61
+    EXPIRATION_COL = 51
+    MESSAGE_COl = 50
 
     # establish helper objects
     working_row_set = []  # contains dicts of rows for which emails are currently being generated
@@ -148,34 +147,56 @@ def main():
 
         for row in reader_storage[START_ROW:END_ROW]:
             working_row_set.append(dict(
-                giver_first_name=row[FIRSTNAME_COL - 1],
-                recipient_full_name=row[RECIPIENT_COL - 1],
-                giver_identification=row[GIVER_COL - 1],
+                gift_giver_fullname=row[GIVER_FULLNAME_COL - 1],
+                giver_first_name=row[GIVER_FIRSTNAME_COL - 1],
+                giver_identification=row[GIVER_NICKNAME_COL - 1],
+                giver_email=row[GIVER_EMAIL_COL - 1],
+                recipient_full_name=row[RECIPIENT_FULLNAME_COL - 1],
+                recipient_first_name=row[RECIPIENT_FIRSTNAME_COL - 1],
+                recipient_email=row[RECIPIENT_EMAIL_COL - 1],
                 gift_message=f'<em>"{row[MESSAGE_COl - 1]}"</em>',
                 membership_expiration=row[EXPIRATION_COL - 1],
                 membership_level=row[MEMLEVEL_COL - 1],
-                email=row[EMAIL_COL - 1],
-                recipient_first_name=row[FIRSTNAME_RECIPIENT_COL - 1],
-                gift_giver_fullname=row[GIFT_GIVER_NAME_COL - 1],
-            ))
+                ))
 
-        # load the template up
-        from string import Template
 
-        with open(giver_template) as f:
-            t = Template(f.read())
 
         # for each record, generate an email
-        for _ in working_row_set:
+        for record in working_row_set:
+
             if os.name == 'posix':
-                posix_run(mail_subject=MAIL_SUBJECT,
-                          template_vals=_,
-                          giver_template_file=giver_template,
-                          recipient_template_file=recipient_template
+                # generate giver email
+                with open(giver_template, 'r') as f:
+                    t = Template(f.read())
+                posix_run(mail_subject=GIVER_MAIL_SUBJECT,
+                          recipients=[record['giver_email']],
+                          template_vals=record,
+                          template=t,
+                          )
+
+                # generate recipient email
+                with open(recipient_template, 'r') as f:
+                    t = Template(f.read())
+                posix_run(mail_subject=RECIPIENT_MAIL_SUBJECT,
+                          recipients=[record['recipient_email']],
+                          template_vals=record,
+                          template=t,
                           )
 
             elif os.name == 'nt':
-                send_outlook_html_mail(recipients=[_['email']], subject=MAIL_SUBJECT, body=t.substitute(_),
+
+                # generate giver email
+                with open(recipient_template, 'r') as f:
+                    t = Template(f.read())
+
+                    send_outlook_html_mail(recipients=[record['giver_email']], subject=GIVER_MAIL_SUBJECT, body=t.substitute(record),
+                                           send_or_display='Display')
+
+                # generate recipient email
+                with open(recipient_template, 'r') as f:
+                    t = Template(f.read())
+
+                send_outlook_html_mail(recipients=[record['recipient_email']], subject=RECIPIENT_MAIL_SUBJECT, body=t.substitute(record),
                                        send_or_display='Display')
 
         if im_done == True:
