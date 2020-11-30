@@ -5,6 +5,18 @@ import pathlib
 import csv
 
 
+def posix_run(mail_subject, giver_template_file, recipient_template_file, template_vals):
+    print('////////////////////////////\n///////////////////////////////////')
+    print('NEW MESSAGE')
+    print('recipients : ' + template_vals['email'])
+    print('subject : ' + mail_subject)
+    with open(giver_template_file, 'r') as f:
+        t1 = Template(f.read())
+    with open(recipient_template_file, 'r') as f:
+        t2 = Template(f.read())
+    print('body : \n\n' + t1.substitute(template_vals) + '\n\n')
+    print('body (RECIPIENT EMAIL) : \n\n' + t2.substitute(template_vals) + '\n\n')  # todo need to pull this out bc the recipients/subject/etc/ will all be different from recipient email to giver email
+
 # todo move to custom
 def get_pwd_of_this_file():
     """
@@ -83,7 +95,7 @@ def send_outlook_html_mail(recipients, subject='No Subject', body='Blank', send_
 def main():
 
     # establish globals
-    CSV_ROW_BATCH_SIZE = 5  # the number of rows to take from the CSV file for each iteration
+    CSV_ROW_BATCH_SIZE = 3  # the number of rows to take from the CSV file for each iteration
     START_ROW = 1  # assumes headers on row 1 and data starts on row 2 but w/ zero-index -- therefore: 1
     MAIL_SUBJECT = 'Thank You for Your Aquarium Gift Membership Purchase!'
 
@@ -94,6 +106,8 @@ def main():
     MESSAGE_COl = 50
     EXPIRATION_COL = 51
     MEMLEVEL_COL = 54
+    GIFT_GIVER_NAME_COL = 56  # e.g. "Susan Blender" $gift_giver_fullname
+    FIRSTNAME_RECIPIENT_COL = 59  # e.g. "Erica" $recipient_first_name refactor firstname_col above
     EMAIL_COL = 61
 
     # establish helper objects
@@ -137,10 +151,12 @@ def main():
                 giver_first_name=row[FIRSTNAME_COL - 1],
                 recipient_full_name=row[RECIPIENT_COL - 1],
                 giver_identification=row[GIVER_COL - 1],
-                gift_message=row[MESSAGE_COl - 1],
+                gift_message=f'<em>"{row[MESSAGE_COl - 1]}"</em>',
                 membership_expiration=row[EXPIRATION_COL - 1],
                 membership_level=row[MEMLEVEL_COL - 1],
                 email=row[EMAIL_COL - 1],
+                recipient_first_name=row[FIRSTNAME_RECIPIENT_COL - 1],
+                gift_giver_fullname=row[GIFT_GIVER_NAME_COL - 1],
             ))
 
         # load the template up
@@ -152,11 +168,11 @@ def main():
         # for each record, generate an email
         for _ in working_row_set:
             if os.name == 'posix':
-                print('////////////////////////////\n///////////////////////////////////')
-                print('NEW MESSAGE')
-                print('recipients : ' + _['email'])
-                print('subject : ' + MAIL_SUBJECT)
-                print('body : \n\n' + t.substitute(_) + '\n\n')
+                posix_run(mail_subject=MAIL_SUBJECT,
+                          template_vals=_,
+                          giver_template_file=giver_template,
+                          recipient_template_file=recipient_template
+                          )
 
             elif os.name == 'nt':
                 send_outlook_html_mail(recipients=[_['email']], subject=MAIL_SUBJECT, body=t.substitute(_),
