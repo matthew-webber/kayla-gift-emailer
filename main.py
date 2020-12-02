@@ -1,8 +1,13 @@
 from string import Template
 import os
 import pathlib
-
 import csv
+import sys
+
+
+def say_goodbye():
+    print('Terminating....')
+    print('\n\n~~~~ Goodbye ~~~~~')
 
 
 def posix_run(mail_subject, recipients, template, template_vals):
@@ -57,6 +62,10 @@ def send_outlook_html_mail(recipients, subject='No Subject', body='Blank', send_
     :param copies: list of CCs' email addresses
     :return: None
     """
+
+    import win32com
+    import win32com.client
+
     if len(recipients) > 0:
         # and isinstance(recipient_list, list) \
         outlook = win32com.client.Dispatch("Outlook.Application")
@@ -121,15 +130,13 @@ def main():
     # for Mac
     if os.name == 'posix':
         csv_file = find_first_with_ext_in_dir('csv')
-        giver_template = './giver_template.html'
-        recipient_template = './recipient_template.html'
+        giver_template = './templates/giver_template.html'
+        recipient_template = './templates/recipient_template.html'
     elif os.name == 'nt':
         csv_file = 'C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\member_data.csv'  # todo refactor when in production
-        giver_template = 'C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\giver_template.html'
-        recipient_template = 'C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\recipient_template.html'
-
-    # get csv file full path
-    csv_file = find_first_with_ext_in_dir('csv')
+        # csv_file = find_first_with_ext_in_dir('csv')
+        giver_template = 'C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\templates\\giver_template.html'
+        recipient_template = 'C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\templates\\recipient_template.html'
 
     with open(csv_file, 'r') as f:
         member_reader = csv.reader(f)
@@ -137,7 +144,9 @@ def main():
         for row in member_reader:
             reader_storage.append(row)
 
-    while True:
+    run_loop = True
+
+    while run_loop is True:
 
         if len(reader_storage) > START_ROW + CSV_ROW_BATCH_SIZE:
             END_ROW = START_ROW + CSV_ROW_BATCH_SIZE
@@ -159,7 +168,7 @@ def main():
                 membership_level=row[MEMLEVEL_COL - 1],
                 ))
 
-
+        print(f'Attempting to generate {len(working_row_set)}/{len(reader_storage)} emails...')
 
         # for each record, generate an email
         for record in working_row_set:
@@ -186,7 +195,7 @@ def main():
             elif os.name == 'nt':
 
                 # generate giver email
-                with open(recipient_template, 'r') as f:
+                with open(giver_template, 'r') as f:
                     t = Template(f.read())
 
                     send_outlook_html_mail(recipients=[record['giver_email']], subject=GIVER_MAIL_SUBJECT, body=t.substitute(record),
@@ -199,39 +208,72 @@ def main():
                 send_outlook_html_mail(recipients=[record['recipient_email']], subject=RECIPIENT_MAIL_SUBJECT, body=t.substitute(record),
                                        send_or_display='Display')
 
-        if im_done == True:
-            print(f'Successfully generated {len(working_row_set)} emails!')
-            break  # end program
+        print('...Done!')
+
+        if im_done is True:
+            print('Script has reached the end of the file!')
+            say_goodbye()
+            run_loop = False  # end program
 
         else:
 
-            thisthat = True
+            continue_loop = True
 
-            while thisthat == True:
-                print(f'Successfully generated {len(working_row_set)} emails!')
+            while continue_loop is True:
+
                 x = input('Continue? [y/n]  ?: ')
 
                 if x in y_n_selectors.get('y'):
 
-                    thisthat = False
+                    continue_loop = False
+                    START_ROW = START_ROW + CSV_ROW_BATCH_SIZE
+                    working_row_set = []
 
                 elif x in y_n_selectors.get('n'):
 
-                    pass  # todo - prompt further interaction if 'don't continue'
-                    break
+                    say_goodbye()
+                    continue_loop = False
+                    run_loop = False  # end program
 
                 else:
 
-                    break
-
-                START_ROW = START_ROW + CSV_ROW_BATCH_SIZE
-                working_row_set = []
-                continue
+                    print('Response not valid. Try again.')
 
 
 if __name__ == '__main__':
-    x = 'this'
-    main()
+
+    DEFAULT_ROW_NUMBER = 2
+    DEFAULT_ITER_NUMBER = 3
+
+    try:
+        row_number = sys.argv[0]
+        print(0)
+    except IndexError:
+        row_number = DEFAULT_ROW_NUMBER
+
+    try:
+        row_number = sys.argv[1]
+        print(1)
+    except IndexError:
+        iteration_number = DEFAULT_ITER_NUMBER
+
+    # start the CLI
+    try:
+        with open('templates/cli.txt', 'r') as f:
+            t = Template(f.read())
+    except FileNotFoundError:
+        with open('C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\templates\\cli.txt', 'r') as f:
+            t = Template(f.read())
+
+    prompt = t.substitute(dict(row_number=row_number, iteration_number=iteration_number))
+
+    resp = input(prompt)
+
+    if resp.strip().lower() == 'start':
+        main()
+    else:
+        print('\n\nGoodbye!')
+
 
 
     # JUST SOME PSEUDO-CODE BELOW

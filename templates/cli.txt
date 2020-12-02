@@ -1,0 +1,52 @@
+
++--------------------------------------+
+|                                      |
+|    Hello and welcome to the          |
+|  SCA "Membership Email Generator"!   |
+|                                      |
+|  To begin, simply follow the prompts |
+|   after ensuring you have read and   |
+|     understand the notice below.     |
+|                             .        |
+|          Happy mailing!      .       |
+|                       ><(((º>        |
++--------------------------------------+
+
+               NOTICE
+
+* Make sure you have the .csv file in
+  the same folder as this script.
+
+* This script will start with the record
+  on row $row_number and generate a
+  "giver" email and "recipient" email
+  for each record.
+
+* It will iterate over $iteration_number records
+  at a time, pause after each iteration,
+  and ask to continue until you tell it
+  to stop or until it reaches the last
+  record.
+
+* You can change which row the script
+  starts on and how many records it
+  will process at a time, or solely
+  the row it starts on.  You cannot
+  change solely the number of records
+  to process each iteration.  See the
+  examples below.
+
+Examples:
+(running from command prompt - start on row 10, process 5 records each iteration):
+
+    python path/to/this/script 10 5
+
+(running from command prompt - start on row 12, process default (3) records each iteration):
+
+    python path/to/this/script 12
+
+--------------------------------------
+
+Enter 'start' to get started!
+
+
