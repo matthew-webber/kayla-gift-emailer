@@ -246,13 +246,13 @@ if __name__ == '__main__':
     DEFAULT_ITER_NUMBER = 3
 
     try:
-        row_number = sys.argv[0]
+        row_number = sys.argv[1]
         print(0)
     except IndexError:
         row_number = DEFAULT_ROW_NUMBER
 
     try:
-        row_number = sys.argv[1]
+        row_number = sys.argv[2]
         print(1)
     except IndexError:
         iteration_number = DEFAULT_ITER_NUMBER
