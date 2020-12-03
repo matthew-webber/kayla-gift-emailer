@@ -6,16 +6,19 @@ import sys
 
 
 def say_goodbye():
-    print('Terminating....')
-    print('\n\n~~~~ Goodbye ~~~~~')
+    print('\nTerminating....')
+    print('~~~~ Goodbye ~~~~~')
 
 
-def posix_run(mail_subject, recipients, template, template_vals):
-    print('////////////////////////////\n///////////////////////////////////')
+def posix_run(mail_subject, recipients, template, template_vals, tally):
+    print('////////////////////////////\n////////////////////////////')
     print('NEW MESSAGE')
     print('recipients : ' + str(recipients))
     print('subject : ' + mail_subject)
-    print('body : \n\n' + template.substitute(template_vals) + '\n\n')
+    print(f'email number {tally + 1}')
+    # comment out for dev
+    # print('body : \n\n' + template.substitute(template_vals) + '\n\n')
+
 
 # todo move to custom
 def get_pwd_of_this_file():
@@ -52,13 +55,13 @@ def find_first_with_ext_in_dir(extension, dir=None):
             return f'{get_pwd_of_this_file()}/{file}'
 
 
-def send_outlook_html_mail(recipients, subject='No Subject', body='Blank', send_or_display='Display', copies=None):
+def send_outlook_html_mail(recipients, subject='No Subject', body='Blank', message_action='Display', copies=None):
     """
     Send an Outlook HTML email
     :param recipients: list of recipients' email addresses (list object)
     :param subject: subject of the email
     :param body: HTML body of the email
-    :param send_or_display: Send - send email automatically | Display - email gets created user have to click Send
+    :param message_action: Send - send email automatically | Display - email gets created user have to click Send
     :param copies: list of CCs' email addresses
     :return: None
     """
@@ -88,19 +91,29 @@ def send_outlook_html_mail(recipients, subject='No Subject', body='Blank', send_
         ol_msg.Subject = subject
         ol_msg.HTMLBody = body
 
-        if send_or_display.upper() == 'SEND':
+        if message_action.upper() == 'SEND':
             ol_msg.Send()
+        elif message_action.upper() == 'SAVE':
+            ol_msg.Save()
         else:
             ol_msg.Display()
     else:
         print('Recipient email address - NOT FOUND')
 
 
-def main():
+def main(**kwargs):
+
+    mail_mode = kwargs.get('mail_mode')  # tells the mail sender whether to display/save/send
+    iter_start_row = kwargs.get('row_number')  # tells the mail sender whether to display/save/send
+    records_per_loop = kwargs.get('iteration_number')  # tells the mail sender whether to display/save/send
+
+    mail_mode = mail_mode if mail_mode else 'Display'
+    iter_start_row = int(iter_start_row) if iter_start_row else 2
+
+    records_per_loop = int(records_per_loop) if records_per_loop else 3
 
     # establish globals
-    CSV_ROW_BATCH_SIZE = 3  # the number of rows to take from the CSV file for each iteration
-    START_ROW = 1  # assumes headers on row 1 and data starts on row 2 but w/ zero-index -- therefore: 1
+    EMAIL_TALLY = 0
     GIVER_MAIL_SUBJECT = 'Thank You for Your Aquarium Gift Membership Purchase!'
     RECIPIENT_MAIL_SUBJECT = 'You\'ve Been Given the Gift of Membership to the South Carolina Aquarium!'
 
@@ -122,10 +135,6 @@ def main():
     working_row_set = []  # contains dicts of rows for which emails are currently being generated
     reader_storage = []  # takes rows from csv.reader so file can close / # rows determined / etc.
     im_done = False  # todo refactor terminate program flag name
-    y_n_selectors = dict(  # determine control flow from user input
-        y=['yes', 'y', 'ok', ':)'],
-        n=['no', 'n', ':(']
-    )
 
     # for Mac
     if os.name == 'posix':
@@ -133,10 +142,12 @@ def main():
         giver_template = './templates/giver_template.html'
         recipient_template = './templates/recipient_template.html'
     elif os.name == 'nt':
-        csv_file = 'C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\member_data.csv'  # todo refactor when in production
-        # csv_file = find_first_with_ext_in_dir('csv')
-        giver_template = 'C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\templates\\giver_template.html'
-        recipient_template = 'C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\templates\\recipient_template.html'
+        csv_file = \
+            'C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\member_data.csv'  # todo refactor when in production
+        giver_template = \
+            'C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\templates\\giver_template.html'
+        recipient_template = \
+            'C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\templates\\recipient_template.html'
 
     with open(csv_file, 'r') as f:
         member_reader = csv.reader(f)
@@ -148,13 +159,14 @@ def main():
 
     while run_loop is True:
 
-        if len(reader_storage) > START_ROW + CSV_ROW_BATCH_SIZE:
-            END_ROW = START_ROW + CSV_ROW_BATCH_SIZE
+        if len(reader_storage) > iter_start_row + records_per_loop:
+            iter_end_row = iter_start_row + records_per_loop
         else:
-            END_ROW = START_ROW + (len(reader_storage) - START_ROW)
+            iter_end_row = iter_start_row + (len(reader_storage) - iter_start_row)
             im_done = True
 
-        for row in reader_storage[START_ROW:END_ROW]:
+        # '- 1' to accommodate for 0-index
+        for row in reader_storage[iter_start_row - 1:iter_end_row]:
             working_row_set.append(dict(
                 gift_giver_fullname=row[GIVER_FULLNAME_COL - 1],
                 giver_first_name=row[GIVER_FIRSTNAME_COL - 1],
@@ -168,7 +180,9 @@ def main():
                 membership_level=row[MEMLEVEL_COL - 1],
                 ))
 
-        print(f'Attempting to generate {len(working_row_set)}/{len(reader_storage)} emails...')
+        total_records = len(reader_storage) - 1  # -1 for header row
+        records_remaining = len(reader_storage) - iter_end_row
+        print(f'Processing {len(working_row_set)} records...')
 
         # for each record, generate an email
         for record in working_row_set:
@@ -177,20 +191,30 @@ def main():
                 # generate giver email
                 with open(giver_template, 'r') as f:
                     t = Template(f.read())
+
                 posix_run(mail_subject=GIVER_MAIL_SUBJECT,
                           recipients=[record['giver_email']],
                           template_vals=record,
                           template=t,
+                          tally=EMAIL_TALLY,
                           )
+
+                EMAIL_TALLY += 1
 
                 # generate recipient email
                 with open(recipient_template, 'r') as f:
                     t = Template(f.read())
+
                 posix_run(mail_subject=RECIPIENT_MAIL_SUBJECT,
                           recipients=[record['recipient_email']],
                           template_vals=record,
                           template=t,
+                          tally=EMAIL_TALLY,
                           )
+
+                EMAIL_TALLY += 1
+
+                print('\n\n\n')
 
             elif os.name == 'nt':
 
@@ -199,45 +223,48 @@ def main():
                     t = Template(f.read())
 
                     send_outlook_html_mail(recipients=[record['giver_email']], subject=GIVER_MAIL_SUBJECT, body=t.substitute(record),
-                                           send_or_display='Display')
+                                           message_action=mail_mode)
 
                 # generate recipient email
                 with open(recipient_template, 'r') as f:
                     t = Template(f.read())
 
                 send_outlook_html_mail(recipients=[record['recipient_email']], subject=RECIPIENT_MAIL_SUBJECT, body=t.substitute(record),
-                                       send_or_display='Display')
+                                       message_action=mail_mode)
 
         print('...Done!')
+        print(f'Total emails generated: {EMAIL_TALLY}')
 
-        if im_done is True:
+        if iter_end_row == total_records:
             print('Script has reached the end of the file!')
-            say_goodbye()
             run_loop = False  # end program
 
         else:
 
+            print(f'Records remaining: {records_remaining}')
             continue_loop = True
+
+            print('Press enter to continue or q to quit.')
 
             while continue_loop is True:
 
-                x = input('Continue? [y/n]  ?: ')
+                x = input('?:').strip().lower()
 
-                if x in y_n_selectors.get('y'):
+                if x == '':
 
                     continue_loop = False
-                    START_ROW = START_ROW + CSV_ROW_BATCH_SIZE
+                    iter_start_row = iter_start_row + records_per_loop
                     working_row_set = []
 
-                elif x in y_n_selectors.get('n'):
+                elif x == 'q':
 
-                    say_goodbye()
                     continue_loop = False
                     run_loop = False  # end program
 
                 else:
 
-                    print('Response not valid. Try again.')
+                    print('Unknown response.  Try again.')
+                    continue
 
 
 if __name__ == '__main__':
@@ -247,51 +274,56 @@ if __name__ == '__main__':
 
     try:
         row_number = sys.argv[1]
-        print(0)
     except IndexError:
         row_number = DEFAULT_ROW_NUMBER
 
     try:
-        row_number = sys.argv[2]
-        print(1)
+        iteration_number = sys.argv[2]
     except IndexError:
         iteration_number = DEFAULT_ITER_NUMBER
 
     # start the CLI
     try:
-        with open('templates/cli.txt', 'r') as f:
+        with open('templates/prompt.txt', 'r') as f:
             t = Template(f.read())
     except FileNotFoundError:
-        with open('C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\templates\\cli.txt', 'r') as f:
+        with open('C:\\Users\\Matthew Webber\\Desktop\\kayla-gift-emailer-master\\templates\\prompt.txt', 'r') as f:
             t = Template(f.read())
 
     prompt = t.substitute(dict(row_number=row_number, iteration_number=iteration_number))
 
-    resp = input(prompt)
+    cli_selectors = dict(
+        start=['start'],
+        display=['display'],
+        quit=['quit', 'q', 'exit'],
+    )
 
-    if resp.strip().lower() == 'start':
-        main()
-    else:
-        print('\n\nGoodbye!')
+    print(prompt)
 
+    while True:
 
+        resp = input("?:").strip().lower()
 
-    # JUST SOME PSEUDO-CODE BELOW
-    # ///////////////////////////////////////////////////////////////////////////////
-    # ///////////////////////////////////////////////////////////////////////////////
-    # /////////////////////////////////////////////////////////////////////////////////
-    # //////////////////////////////////////////////////////////////////////////////
+        if resp in cli_selectors.get('start'):
 
-    # get .csv file in current directory
-    # load up to reader obj
-    # while True
-    #   for every USER_DEFINED_NUMBER rows:
-    #     load variables for sets 1 + 2 according to whatever columns are needed
-    #     call "send_outlook_html_mail" to variable set 1
-    #     call "send_outlook_html_mail" to variable set 2
-    #     keeping running total, inform user how many rows have been processed so far
-    #
-    #   ask user if they want to continue
-    #   if yes, process next USER_DEFINED_NUMBER rows in same spreadsheet
-    #   else, break
-    # end program
+            mail_mode = None
+
+        elif resp in cli_selectors.get('display'):
+
+            mail_mode = 'Display'
+
+        elif resp in cli_selectors.get('quit'):
+
+            pass
+
+        else:
+
+            print('Unknown response.  Try again.')
+            continue
+
+        break
+
+    if resp != 'quit':
+        main(mail_mode=mail_mode, row_number=row_number, iteration_number=iteration_number)
+
+    say_goodbye()
