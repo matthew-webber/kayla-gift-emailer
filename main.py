@@ -27,7 +27,6 @@ def get_pwd_of_this_file():
     Gets the pwd of the file running this thing
     :return: path string
     """
-
     return os.path.dirname(os.path.realpath(__file__))
 
 
@@ -52,7 +51,10 @@ def find_first_with_ext_in_dir(extension, dir=None):
 
     for file in files:
         if pathlib.Path(file).suffix == extension:
-            return f'{get_pwd_of_this_file()}/{file}'
+            if os.name == 'posix':
+                return f'{get_pwd_of_this_file()}/{file}'
+            elif os.name == 'nt':
+                return f'{get_pwd_of_this_file()}\\{file}'
 
 
 def send_outlook_html_mail(recipients, subject='No Subject', body='Blank', message_action='Display', copies=None):
@@ -142,12 +144,9 @@ def main(**kwargs):
         giver_template = './templates/giver_template.html'
         recipient_template = './templates/recipient_template.html'
     elif os.name == 'nt':
-        csv_file = \
-            'C:\\Users\\Kayla\\Desktop\\sca-python-membership-mailer\\member_data.csv'  # todo refactor when in production
-        giver_template = \
-            'C:\\Users\\Kayla\\Desktop\\sca-python-membership-mailer\\templates\\giver_template.html'
-        recipient_template = \
-            'C:\\Users\\Kayla\\Desktop\\sca-python-membership-mailer\\templates\\recipient_template.html'
+        csv_file = find_first_with_ext_in_dir('csv')  # todo refactor when in production
+        giver_template = f'{get_pwd_of_this_file()}\\templates\\giver_template.html'
+        recipient_template = f'{get_pwd_of_this_file()}\\templates\\recipient_template.html'
 
     with open(csv_file, 'r') as f:
         member_reader = csv.reader(f)
@@ -287,7 +286,7 @@ if __name__ == '__main__':
         with open('templates/prompt.txt', 'r') as f:
             t = Template(f.read())
     except FileNotFoundError:
-        with open('C:\\Users\\Kayla\\Desktop\\sca-python-membership-mailer\\templates\\prompt.txt', 'r') as f:
+        with open(f'{get_pwd_of_this_file()}\\templates\\prompt.txt', 'r') as f:
             t = Template(f.read())
 
     prompt = t.substitute(dict(row_number=row_number, iteration_number=iteration_number))
