@@ -129,6 +129,9 @@ def main(**kwargs):
     RECIPIENT_FIRSTNAME_COL = 59  # e.g. "Erica" $recipient_first_name-- giver equivalent is "salutation"
     RECIPIENT_EMAIL_COL = 61
 
+    GUARDIAN_FIRSTNAME = 62  # col BJ - will be different than recipient_firstname so added to end
+    GUARDIAN_STG_ORDERNOTES = 52  # col AZ
+
     MEMLEVEL_COL = 54
     EXPIRATION_COL = 51
     MESSAGE_COl = 50
@@ -181,6 +184,8 @@ def main(**kwargs):
                 gift_message=f'<em>"{row[MESSAGE_COl - 1]}"</em>',
                 membership_expiration=row[EXPIRATION_COL - 1],
                 membership_level=row[MEMLEVEL_COL - 1],
+                stg_online_order_notes_1=row[GUARDIAN_STG_ORDERNOTES - 1],
+                guardian_first_name=row[GUARDIAN_FIRSTNAME - 1],
                 ))
 
         total_records = len(reader_storage) - 1  # -1 for header row
