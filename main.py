@@ -103,6 +103,20 @@ def send_outlook_html_mail(recipients, subject='No Subject', body='Blank', messa
         print('Recipient email address - NOT FOUND')
 
 
+def get_email_template(query_column, record, template_dict):
+    """
+    Checks the query associated with a record and returns a list of file strings
+    corresponding to the templates in this project which are associated with the
+    given query in the record.
+    :param column_number: index of query column
+    :param record: list of all fields in the record
+    :param template_dict: query-template dict
+    :return: file string to template
+    """
+
+    return template_dict.get(record[query_column])
+
+
 def main(**kwargs):
 
     mail_mode = kwargs.get('mail_mode')  # tells the mail sender whether to display/save/send
@@ -143,17 +157,41 @@ def main(**kwargs):
     reader_storage = []  # takes rows from csv.reader so file can close / # rows determined / etc.
     im_done = False  # todo confirm can remove
 
+    # establish the names of the queries which tie to a template type
+    QUERY_MEM_V1 = 'MEM-Gift_Primary_Web Giver Inc_Acknowledgement Letter'
+    QUERY_MEM_V2 = 'STG-Gift_Giver_Annual_Acknowledgement Email'
+    QUERY_STG_V1 = 'MEM-Gift_Giver_Web Giver Inc_Acknowledgement Letter'
+    QUERY- = ''
+    QUERY- = ''
+    QUERY- = ''
+
     # establish OS specific variables
     # for Mac
     if os.name == 'posix':
         csv_file = find_first_with_ext_in_dir('csv')
-        giver_template = './templates/giver_template.html'
-        recipient_template = './templates/recipient_template.html'
+        v1_giver_template = './templates/v1_giver_template.html'
+        v1_recipient_template = './templates/v1_recipient_template.html'
+        v2_giver_template = './templates/v2_giver_template.html'
+        v2_recipient_template = './templates/v2_recipient_template.html'
+        stg_giver_template = './templates/'
+        stg_recipient_template = './templates/'
+
     # for Windows
     elif os.name == 'nt':
         csv_file = find_first_with_ext_in_dir('csv')
-        giver_template = f'{get_pwd_of_this_file()}\\templates\\giver_template.html'
-        recipient_template = f'{get_pwd_of_this_file()}\\templates\\recipient_template.html'
+        v1_giver_template = f'{get_pwd_of_this_file()}\\templates\\v1_giver_template.html'
+        v1_recipient_template = f'{get_pwd_of_this_file()}\\templates\\v1_recipient_template.html'
+        v2_giver_template = f'{get_pwd_of_this_file()}\\templates\\v2_giver_template.html'
+        v2_recipient_template = f'{get_pwd_of_this_file()}\\templates\\v2_recipient_template.html'
+        stg_giver_template = f'{get_pwd_of_this_file()}\\templates\\.html'
+        stg_recipient_template = f'{get_pwd_of_this_file()}\\templates\\.html'
+
+    # query-to-template-file dict
+    template_dict = {
+        QUERY_MEM_V1: [v1_giver_template, v1_recipient_template],
+        QUERY_MEM_V2: [v2_giver_template, v2_recipient_template],
+        QUERY_STG_V1: [stg_giver_template, stg_recipient_template],
+    }
 
     with open(csv_file, 'r') as f:
         member_reader = csv.reader(f)
@@ -163,6 +201,7 @@ def main(**kwargs):
 
     run_loop = True
 
+    # begin iteration over each record
     while run_loop is True:
 
         if len(reader_storage) > iter_start_row + records_per_loop:
@@ -173,6 +212,7 @@ def main(**kwargs):
 
         # '- 1' to accommodate for 0-index
         for row in reader_storage[iter_start_row - 1:iter_end_row]:
+
             # adjust the gift message value if none included
             if row[MESSAGE_COl -1] == '':
                 row[MESSAGE_COl -1] = 'Enjoy your membership!'
@@ -199,50 +239,56 @@ def main(**kwargs):
         # for each record, generate an email
         for record in working_row_set:
 
-            if os.name == 'posix':
-                # generate giver email
-                with open(giver_template, 'r') as f:
-                    t = Template(f.read())
+            # get template filestring
+            template_files = get_email_template(TEMPLATE_TYPE_COL - 1, row, template_dict)
 
-                posix_run(mail_subject=GIVER_MAIL_SUBJECT,
-                          recipients=[record['giver_email']],
-                          template_vals=record,
-                          template=t,
-                          tally=EMAIL_TALLY,
-                          )
+            for i, template in enumerate(template_files):
 
-                EMAIL_TALLY += 1
+                if os.name == 'posix':
 
-                # generate recipient email
-                with open(recipient_template, 'r') as f:
-                    t = Template(f.read())
+                    with open(template, 'r') as f:
+                        t = Template(f.read())
 
-                posix_run(mail_subject=RECIPIENT_MAIL_SUBJECT,
-                          recipients=[record['recipient_email']],
-                          template_vals=record,
-                          template=t,
-                          tally=EMAIL_TALLY,
-                          )
+                    posix_run(mail_subject=GIVER_MAIL_SUBJECT,
+                              recipients=[record['giver_email']],
+                              template_vals=record,
+                              template=t,
+                              tally=EMAIL_TALLY,
+                              )
 
-                EMAIL_TALLY += 1
+                    EMAIL_TALLY += 1
 
-                print('\n\n\n')
+                    # generate recipient email
+                    with open(recipient_template, 'r') as f:
+                        t = Template(f.read())
 
-            elif os.name == 'nt':
+                    posix_run(mail_subject=RECIPIENT_MAIL_SUBJECT,
+                              recipients=[record['recipient_email']],
+                              template_vals=record,
+                              template=t,
+                              tally=EMAIL_TALLY,
+                              )
 
-                # generate giver email
-                with open(giver_template, 'r') as f:
-                    t = Template(f.read())
+                    EMAIL_TALLY += 1
 
-                    send_outlook_html_mail(recipients=[record['giver_email']], subject=GIVER_MAIL_SUBJECT, body=t.substitute(record),
+                    print('\n\n\n')
+
+                elif os.name == 'nt':
+
+                    # refactor like generate_emails([template1, template2])
+                    # generate giver email
+                    with open(template, 'r') as f:
+                        t = Template(f.read())
+
+                        send_outlook_html_mail(recipients=[record['giver_email']], subject=GIVER_MAIL_SUBJECT, body=t.substitute(record),
+                                               message_action=mail_mode)
+
+                    # generate recipient email
+                    with open(template, 'r') as f:
+                        t = Template(f.read())
+
+                    send_outlook_html_mail(recipients=[record['recipient_email']], subject=RECIPIENT_MAIL_SUBJECT, body=t.substitute(record),
                                            message_action=mail_mode)
-
-                # generate recipient email
-                with open(recipient_template, 'r') as f:
-                    t = Template(f.read())
-
-                send_outlook_html_mail(recipients=[record['recipient_email']], subject=RECIPIENT_MAIL_SUBJECT, body=t.substitute(record),
-                                       message_action=mail_mode)
 
         print('...Done!')
         print(f'Total emails generated: {EMAIL_TALLY}')
