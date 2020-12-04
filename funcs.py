@@ -38,12 +38,12 @@ def find_first_with_ext_in_dir(extension, dir=None):
     """
 
     if dir is None:
-        files = os.listdir()
+        files = os.listdir(get_pwd_of_this_file())
     else:
         files = os.listdir(dir)
     print(os.listdir())
-    print('above is os.listdir')
-    print(dir + ' is dir')
+    # print('above is os.listdir')
+    # print(dir + ' is dir')
 
     if extension[0] != '.':
         extension = '.' + extension
