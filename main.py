@@ -166,6 +166,10 @@ def main(**kwargs):
 
         # '- 1' to accommodate for 0-index
         for row in reader_storage[iter_start_row - 1:iter_end_row]:
+            # adjust the gift message value if none included
+            if row[MESSAGE_COl -1] == '':
+                row[MESSAGE_COl -1] = 'Enjoy your membership!'
+
             working_row_set.append(dict(
                 gift_giver_fullname=row[GIVER_FULLNAME_COL - 1],
                 giver_first_name=row[GIVER_FIRSTNAME_COL - 1],
