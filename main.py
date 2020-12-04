@@ -48,6 +48,8 @@ def main(**kwargs):
     im_done = False  # todo confirm can remove
 
     data_object = RecordData()
+    print(data_object.csv_file + ' is do csv file')
+    print(data_object.queries + ' is do csv file')
 
     with open(data_object.csv_file, 'r') as f:
         member_reader = csv.reader(f)
