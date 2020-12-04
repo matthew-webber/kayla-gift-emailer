@@ -119,7 +119,9 @@ def main(**kwargs):
     GIVER_MAIL_SUBJECT = 'Thank You for Your Aquarium Gift Membership Purchase!'
     RECIPIENT_MAIL_SUBJECT = 'You\'ve Been Given the Gift of Membership to the South Carolina Aquarium!'
 
-    # column numbers as of 11/24
+    # CSV COLUMN NUMBERS (as of 11/24)
+    TEMPLATE_TYPE_COL = 1
+
     GIVER_FULLNAME_COL = 56  # e.g. "Susan Blender" $giver_fullname
     SALUTATION = 11
     GIVER_EMAIL_COL = 9
@@ -139,15 +141,17 @@ def main(**kwargs):
     # establish helper objects
     working_row_set = []  # contains dicts of rows for which emails are currently being generated
     reader_storage = []  # takes rows from csv.reader so file can close / # rows determined / etc.
-    im_done = False  # todo refactor terminate program flag name
+    im_done = False  # todo confirm can remove
 
+    # establish OS specific variables
     # for Mac
     if os.name == 'posix':
         csv_file = find_first_with_ext_in_dir('csv')
         giver_template = './templates/giver_template.html'
         recipient_template = './templates/recipient_template.html'
+    # for Windows
     elif os.name == 'nt':
-        csv_file = find_first_with_ext_in_dir('csv')  # todo refactor when in production
+        csv_file = find_first_with_ext_in_dir('csv')
         giver_template = f'{get_pwd_of_this_file()}\\templates\\giver_template.html'
         recipient_template = f'{get_pwd_of_this_file()}\\templates\\recipient_template.html'
 
