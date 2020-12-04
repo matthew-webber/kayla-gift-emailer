@@ -41,7 +41,8 @@ def find_first_with_ext_in_dir(extension, dir=None):
         files = os.listdir()
     else:
         files = os.listdir(dir)
-
+    print(os.listdir())
+    print('above is os.listdir')
     print(dir + ' is dir')
 
     if extension[0] != '.':
