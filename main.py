@@ -143,11 +143,11 @@ def main(**kwargs):
         recipient_template = './templates/recipient_template.html'
     elif os.name == 'nt':
         csv_file = \
-            'C:\\Users\\Matthew Webber\\Desktop\\sca-python-membership-mailer\\member_data.csv'  # todo refactor when in production
+            'C:\\Users\\Kayla\\Desktop\\sca-python-membership-mailer\\member_data.csv'  # todo refactor when in production
         giver_template = \
-            'C:\\Users\\Matthew Webber\\Desktop\\sca-python-membership-mailer\\templates\\giver_template.html'
+            'C:\\Users\\Kayla\\Desktop\\sca-python-membership-mailer\\templates\\giver_template.html'
         recipient_template = \
-            'C:\\Users\\Matthew Webber\\Desktop\\sca-python-membership-mailer\\templates\\recipient_template.html'
+            'C:\\Users\\Kayla\\Desktop\\sca-python-membership-mailer\\templates\\recipient_template.html'
 
     with open(csv_file, 'r') as f:
         member_reader = csv.reader(f)
@@ -287,7 +287,7 @@ if __name__ == '__main__':
         with open('templates/prompt.txt', 'r') as f:
             t = Template(f.read())
     except FileNotFoundError:
-        with open('C:\\Users\\Matthew Webber\\Desktop\\sca-python-membership-mailer\\templates\\prompt.txt', 'r') as f:
+        with open('C:\\Users\\Kayla\\Desktop\\sca-python-membership-mailer\\templates\\prompt.txt', 'r') as f:
             t = Template(f.read())
 
     prompt = t.substitute(dict(row_number=row_number, iteration_number=iteration_number))
