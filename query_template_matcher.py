@@ -93,3 +93,4 @@ if __name__ == '__main__':
     x = RecordData()
     x.reset_record_data('MEM-Gift_Primary_Web Giver Inc_Acknowledgement Letter')
     print(x.templates[1])
+    print(x.csv_file)
