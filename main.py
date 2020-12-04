@@ -141,12 +141,12 @@ def main(**kwargs):
     # for Mac
     if os.name == 'posix':
         csv_file = find_first_with_ext_in_dir('csv')
-        giver_template = './templates/giver_template.html'
-        recipient_template = './templates/recipient_template.html'
+        giver_template = './templates/v1_giver_template.html'
+        recipient_template = './templates/v1_recipient_template.html'
     elif os.name == 'nt':
         csv_file = find_first_with_ext_in_dir('csv')  # todo refactor when in production
-        giver_template = f'{get_pwd_of_this_file()}\\templates\\giver_template.html'
-        recipient_template = f'{get_pwd_of_this_file()}\\templates\\recipient_template.html'
+        giver_template = f'{get_pwd_of_this_file()}\\templates\\v1_giver_template.html'
+        recipient_template = f'{get_pwd_of_this_file()}\\templates\\v1_recipient_template.html'
 
     with open(csv_file, 'r') as f:
         member_reader = csv.reader(f)
