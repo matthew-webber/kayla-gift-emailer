@@ -18,8 +18,8 @@ class RecordData:
         f'{pwd}{sep}templates{sep}v1_recipient_template.html',
         f'{pwd}{sep}templates{sep}v2_giver_template.html',
         f'{pwd}{sep}templates{sep}v2_recipient_template.html',
-        f'{pwd}{sep}templates{sep}sea_turtle_giver',
-        f'{pwd}{sep}templates{sep}sea_turtle_recipient',
+        f'{pwd}{sep}templates{sep}sea_turtle_giver.html',
+        f'{pwd}{sep}templates{sep}sea_turtle_recipient.html',
     ]
 
     subjects = [
