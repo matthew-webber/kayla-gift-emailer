@@ -120,13 +120,13 @@ def main(**kwargs):
     RECIPIENT_MAIL_SUBJECT = 'You\'ve Been Given the Gift of Membership to the South Carolina Aquarium!'
 
     # column numbers as of 11/24
-    GIVER_FULLNAME_COL = 56  # e.g. "Susan Blender" $gift_giver_fullname
-    GIVER_FIRSTNAME_COL = 11
+    GIVER_FULLNAME_COL = 56  # e.g. "Susan Blender" $giver_fullname
+    SALUTATION = 11
     GIVER_EMAIL_COL = 9
     GIVER_NICKNAME_COL = 38
 
     RECIPIENT_FULLNAME_COL = 37
-    RECIPIENT_FIRSTNAME_COL = 59  # e.g. "Erica" $recipient_first_name refactor firstname_col above
+    RECIPIENT_FIRSTNAME_COL = 59  # e.g. "Erica" $recipient_first_name-- giver equivalent is "salutation"
     RECIPIENT_EMAIL_COL = 61
 
     MEMLEVEL_COL = 54
@@ -171,8 +171,8 @@ def main(**kwargs):
                 row[MESSAGE_COl -1] = 'Enjoy your membership!'
 
             working_row_set.append(dict(
-                gift_giver_fullname=row[GIVER_FULLNAME_COL - 1],
-                giver_first_name=row[GIVER_FIRSTNAME_COL - 1],
+                giver_fullname=row[GIVER_FULLNAME_COL - 1],
+                salutation=row[SALUTATION - 1],
                 giver_identification=row[GIVER_NICKNAME_COL - 1],
                 giver_email=row[GIVER_EMAIL_COL - 1],
                 recipient_full_name=row[RECIPIENT_FULLNAME_COL - 1],
