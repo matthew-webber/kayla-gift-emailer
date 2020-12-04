@@ -69,7 +69,7 @@ def main(**kwargs):
             im_done = True
 
         # '- 1' to accommodate for 0-index
-        for row in reader_storage[iter_start_row - 1:iter_end_row]:
+        for row in reader_storage[iter_start_row - 1:iter_end_row - 1]:
 
             # adjust the gift message value if none included
             if row[MESSAGE_COl -1] == '':
@@ -128,11 +128,13 @@ def main(**kwargs):
                     with open(data_object.templates[i], 'r') as f:
                         t = Template(f.read())
 
-                        send_outlook_html_mail(recipients=[record['emails'][i]],
-                                               subject=data_object.subjects[i],
-                                               body=t.substitute(record),
-                                               message_action=mail_mode
-                                               )
+                    send_outlook_html_mail(recipients=[record['emails'][i]],
+                                           subject=data_object.subjects[i],
+                                           body=t.substitute(record),
+                                           message_action=mail_mode
+                                           )
+
+                    EMAIL_TALLY += 1
 
 
         print('...Done!')
@@ -209,7 +211,7 @@ if __name__ == '__main__':
 
         if resp in cli_selectors.get('start'):
 
-            mail_mode = None
+            mail_mode = 'Save'
 
         elif resp in cli_selectors.get('display'):
 
