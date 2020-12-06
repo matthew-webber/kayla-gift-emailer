@@ -54,10 +54,10 @@ Examples:
 --------------------------------------
 
 Starting row: $row_number
-# emails at a time: $iteration_number
+emails at a time: $iteration_number
 
 Right now, the emails you generate are set to
 save in your drafts folder as they are created.
 
-Enter "display" to change this, "start" to
-continue as-is, or "quit" to quit.
+Enter "display" to change this, q to "quit",
+or just press Enter to start.

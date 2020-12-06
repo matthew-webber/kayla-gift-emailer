@@ -244,6 +244,10 @@ if __name__ == '__main__':
         break
 
     if resp != 'quit':
-        main(mail_action=action, row_number=row_number, iteration_number=record_batch, data=project_data)
+        print('\n\n......STARTING......\n\n')
+        main(mail_action=action,
+             row_number=row_number,
+             iteration_number=record_batch,
+             data=project_data)
 
     say_goodbye()
