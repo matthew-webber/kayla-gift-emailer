@@ -5,23 +5,25 @@ import csv
 import sys
 from funcs import *
 from query_template_matcher import RecordData
+from custom.excel_funcs import excel_col_to_number
 
 
 def main(**kwargs):
 
-    mail_mode = kwargs.get('mail_mode')  # tells the mail sender whether to display/save/send
-    iter_start_row = kwargs.get('row_number')  # tells the mail sender whether to display/save/send
-    records_per_loop = kwargs.get('iteration_number')  # tells the mail sender whether to display/save/send
+    mail_action = kwargs.get('mail_action')  # tells the mail sender whether to display/save/send
+    iter_start_row = int(kwargs.get('row_number'))  # tells the mail sender whether to display/save/send
+    records_per_loop = int(kwargs.get('iteration_number'))  # tells the mail sender whether to display/save/send
+    data = kwargs.get('data')
 
-    mail_mode = mail_mode if mail_mode else 'Display'
-    iter_start_row = int(iter_start_row) if iter_start_row else 2
+    mail_action = mail_action if mail_action else 'Display'
 
-    records_per_loop = int(records_per_loop) if records_per_loop else 3
+    # convert column letters to numbers from JSON data
+    for column in data['columns'].keys():
+        col_letters = data['columns'][column]
+        data['columns'][column] = excel_col_to_number(col_letters)
 
-    # establish globals
-    EMAIL_TALLY = 0
-    GIVER_MAIL_SUBJECT = 'Thank You for Your Aquarium Gift Membership Purchase!'
-    RECIPIENT_MAIL_SUBJECT = 'You\'ve Been Given the Gift of Membership to the South Carolina Aquarium!'
+    # track number emails processed
+    email_tally = 0
 
     # CSV COLUMN NUMBERS (as of 11/24)
     QUERY_NAME_COL = 1
@@ -47,7 +49,7 @@ def main(**kwargs):
     reader_storage = []  # takes rows from csv.reader so file can close / # rows determined / etc.
     im_done = False  # todo confirm can remove
 
-    data_object = RecordData()
+    data_object = RecordData(data)
     # print(data_object.csv_file + ' is do csv file')
     # print(data_object.queries + ' is do csv file')
 
@@ -76,18 +78,18 @@ def main(**kwargs):
                 row[MESSAGE_COl -1] = 'Enjoy your membership!'
             print(row[GIVER_FULLNAME_COL - 1])
             working_row_set.append(dict(
-                giver_fullname=row[GIVER_FULLNAME_COL - 1],
-                salutation=row[SALUTATION - 1],
-                giver_identification=row[GIVER_NICKNAME_COL - 1],
-                emails=[row[GIVER_EMAIL_COL - 1], row[RECIPIENT_EMAIL_COL - 1]],
-                recipient_full_name=row[RECIPIENT_FULLNAME_COL - 1],
-                recipient_first_name=row[RECIPIENT_FIRSTNAME_COL - 1],
-                gift_message=f'<em>"{row[MESSAGE_COl - 1]}"</em>',
-                membership_expiration=row[EXPIRATION_COL - 1],
-                membership_level=row[MEMLEVEL_COL - 1],
-                stg_online_order_notes_1=row[GUARDIAN_STG_ORDERNOTES - 1],
-                guardian_first_name=row[GUARDIAN_FIRSTNAME - 1],
-                query_name=row[QUERY_NAME_COL - 1],
+                giver_fullname=row[data['columns']['giverFullName'] - 1],
+                salutation=row[data['columns']['giverSalutation'] - 1],
+                giver_identification=row[data['columns']['giverNickname'] - 1],
+                emails=[row[data['columns']['giverEmail'] - 1], row[data['columns']['recipientEmail'] - 1]],
+                recipient_full_name=row[data['columns']['recipientFullName'] - 1],
+                recipient_first_name=row[data['columns']['recipientFirstName'] - 1],
+                gift_message=f'<em>"{row[data["columns"]["giftMessage"] - 1]}"</em>',
+                membership_expiration=row[data['columns']['membershipExpiration'] - 1],
+                membership_level=row[data['columns']['membershipLevel'] - 1],
+                stg_online_order_notes_1=row[data['columns']['guardianOrderNotes'] - 1],
+                guardian_first_name=row[data['columns']['guardianFirstName'] - 1],
+                query_name=row[data['columns']['queryName'] - 1],
                 ))
 
         total_records = len(reader_storage) - 1  # -1 for header row
@@ -96,6 +98,7 @@ def main(**kwargs):
 
         # for each record, generate an email
         for record in working_row_set:
+
             # set new data_obj.templates / data_obj.subjects
             data_object.reset_record_data(record['query_name'])
 
@@ -114,10 +117,10 @@ def main(**kwargs):
                               recipients=[record['emails'][i]],
                               template_vals=record,
                               template=t,
-                              tally=EMAIL_TALLY,
+                              tally=email_tally,
                               )
 
-                    EMAIL_TALLY += 1
+                    email_tally += 1
 
                     print('\n\n\n')
 
@@ -131,14 +134,14 @@ def main(**kwargs):
                     send_outlook_html_mail(recipients=[record['emails'][i]],
                                            subject=data_object.subjects[i],
                                            body=t.substitute(record),
-                                           message_action=mail_mode
+                                           message_action=mail_action
                                            )
 
-                    EMAIL_TALLY += 1
+                    email_tally += 1
 
 
         print('...Done!')
-        print(f'Total emails generated: {EMAIL_TALLY}')
+        print(f'Total emails generated: {email_tally}')
 
         if iter_end_row == total_records:
             print('Script has reached the end of the file!')
@@ -174,49 +177,61 @@ def main(**kwargs):
 
 if __name__ == '__main__':
 
-    DEFAULT_ROW_NUMBER = 2
-    DEFAULT_ITER_NUMBER = 3
+    from json import load as json_load
+
+    with open('project.json', 'r') as f:
+        project_data = json_load(f)
+
+    defaults = project_data['default']
 
     try:
         row_number = sys.argv[1]
     except IndexError:
-        row_number = DEFAULT_ROW_NUMBER
+        row_number = defaults['startRow']
 
     try:
-        iteration_number = sys.argv[2]
+        record_batch = sys.argv[2]
     except IndexError:
-        iteration_number = DEFAULT_ITER_NUMBER
+        record_batch = defaults['recordBatch']
 
     # start the CLI
+    # todo refactor to posix vs nt
     try:
-        with open('templates/prompt.txt', 'r') as f:
+        with open('cli-prompt.txt', 'r') as f:
             t = Template(f.read())
     except FileNotFoundError:
-        with open(f'{get_pwd_of_this_file()}\\templates\\prompt.txt', 'r') as f:
+        with open(f'{get_pwd_of_this_file()}\\cli-prompt.txt', 'r') as f:
             t = Template(f.read())
 
-    prompt = t.substitute(dict(row_number=row_number, iteration_number=iteration_number))
+    prompt = t.substitute(dict(row_number=row_number, iteration_number=record_batch))
 
     cli_selectors = dict(
-        start=['start'],
+        start=['start', ''],
         display=['display'],
         quit=['quit', 'q', 'exit'],
+        send=['send'],
     )
 
     print(prompt)
 
     while True:
 
-        resp = input("?:").strip().lower()
+        # resp = input("?:").strip().lower()
+        # todo comment out after dev over
+        resp = 'start'
 
         # todo add a "send" setting
         if resp in cli_selectors.get('start'):
 
-            mail_mode = 'Save'
+            action = 'Save'
 
         elif resp in cli_selectors.get('display'):
 
-            mail_mode = 'Display'
+            action = 'Display'
+
+        elif resp in cli_selectors.get('send'):
+
+            action = 'Send'
 
         elif resp in cli_selectors.get('quit'):
 
@@ -230,6 +245,10 @@ if __name__ == '__main__':
         break
 
     if resp != 'quit':
-        main(mail_mode=mail_mode, row_number=row_number, iteration_number=iteration_number)
+        print('\n\n......STARTING......\n\n')
+        main(mail_action=action,
+             row_number=row_number,
+             iteration_number=record_batch,
+             data=project_data)
 
     say_goodbye()
