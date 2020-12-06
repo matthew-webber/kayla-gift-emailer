@@ -13,7 +13,7 @@ def posix_run(mail_subject, recipients, template, template_vals, tally):
     print('subject : ' + mail_subject)
     print(f'email number {tally + 1}')
     # comment out for dev
-    # print('body : \n\n' + template.substitute(template_vals) + '\n\n')
+    print('body : \n\n' + template.substitute(template_vals) + '\n\n')
 
 
 # todo move to custom

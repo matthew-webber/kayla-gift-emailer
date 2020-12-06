@@ -40,54 +40,41 @@ class RecordData:
         'STG-Gift_Giver_Annual_Acknowledgement Email',
     ]
 
-    def __init__(self, **kwargs):
+    def __init__(self, data):
         """
 
         :param kwargs: the data dependent on a query
         """
-        self.templates = None
-        self.subjects = None
+        self.data = data
+        self.templates = list()
+        self.subjects = list()
         self.csv_file = RecordData.csv_file
         self.queries = RecordData.queries
-        self.query_matcher = self.create_query_matcher()
 
     def reset_record_data(self, query_string):
-        self.templates = self.query_matcher[query_string]['templates']
-        self.subjects = self.query_matcher[query_string]['subjects']
 
-    def create_query_matcher(self):
-        return {
-            self.queries[0]: {
-                'templates': [
-                    RecordData.templates[0],
-                    RecordData.templates[1],
-                ],
-                'subjects': [
-                    RecordData.subjects[0],
-                    RecordData.subjects[1],
-                ]
-            },
-            self.queries[1]: {
-                'templates': [
-                    RecordData.templates[2],
-                    RecordData.templates[3],
-                ],
-                'subjects': [
-                    RecordData.subjects[2],
-                    RecordData.subjects[3],
-                ]
-            },
-            self.queries[2]: {
-                'templates': [
-                    RecordData.templates[4],
-                    RecordData.templates[5],
-                ],
-                'subjects': [
-                    RecordData.subjects[4],
-                    RecordData.subjects[5],
-                ]
-            }
-        }
+        templateObj = self.get_obj_by_query(query_string)
+
+        self.templates = [templateObj['filename']['giver'],
+                          templateObj['filename']['recipient']]
+        self.subjects = [templateObj['subject']['giver'],
+                         templateObj['subject']['recipient']]
+
+        self.add_path_to_templates()
+
+    def get_obj_by_query(self, query_string):
+        for obj in self.data['templatesData']:
+            if obj['queryName'] == query_string:
+                return obj
+
+    def add_path_to_templates(self):
+        tmeplate_temp = list()
+        for file_string in self.templates:
+            tmeplate_temp.append(
+                f'{RecordData.pwd}{RecordData.sep}{self.data["templatesFolder"]}{RecordData.sep}{file_string}'
+            )
+
+        self.templates = tmeplate_temp
 
 
 if __name__ == '__main__':

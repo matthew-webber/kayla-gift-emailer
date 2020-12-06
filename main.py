@@ -5,6 +5,7 @@ import csv
 import sys
 from funcs import *
 from query_template_matcher import RecordData
+from custom.excel_funcs import excel_col_to_number
 
 
 def main(**kwargs):
@@ -15,6 +16,11 @@ def main(**kwargs):
     data = kwargs.get('data')
 
     mail_action = mail_action if mail_action else 'Display'
+
+    # convert column letters to numbers from JSON data
+    for column in data['columns'].keys():
+        col_letters = data['columns'][column]
+        data['columns'][column] = excel_col_to_number(col_letters)
 
     # track number emails processed
     email_tally = 0
@@ -43,7 +49,7 @@ def main(**kwargs):
     reader_storage = []  # takes rows from csv.reader so file can close / # rows determined / etc.
     im_done = False  # todo confirm can remove
 
-    data_object = RecordData()
+    data_object = RecordData(data)
     # print(data_object.csv_file + ' is do csv file')
     # print(data_object.queries + ' is do csv file')
 
@@ -72,18 +78,18 @@ def main(**kwargs):
                 row[MESSAGE_COl -1] = 'Enjoy your membership!'
             print(row[GIVER_FULLNAME_COL - 1])
             working_row_set.append(dict(
-                giver_fullname=row[GIVER_FULLNAME_COL - 1],
-                salutation=row[SALUTATION - 1],
-                giver_identification=row[GIVER_NICKNAME_COL - 1],
-                emails=[row[GIVER_EMAIL_COL - 1], row[RECIPIENT_EMAIL_COL - 1]],
-                recipient_full_name=row[RECIPIENT_FULLNAME_COL - 1],
-                recipient_first_name=row[RECIPIENT_FIRSTNAME_COL - 1],
-                gift_message=f'<em>"{row[MESSAGE_COl - 1]}"</em>',
-                membership_expiration=row[EXPIRATION_COL - 1],
-                membership_level=row[MEMLEVEL_COL - 1],
-                stg_online_order_notes_1=row[GUARDIAN_STG_ORDERNOTES - 1],
-                guardian_first_name=row[GUARDIAN_FIRSTNAME - 1],
-                query_name=row[QUERY_NAME_COL - 1],
+                giver_fullname=row[data['columns']['giverFullName'] - 1],
+                salutation=row[data['columns']['giverSalutation'] - 1],
+                giver_identification=row[data['columns']['giverNickname'] - 1],
+                emails=[row[data['columns']['giverEmail'] - 1], row[data['columns']['recipientEmail'] - 1]],
+                recipient_full_name=row[data['columns']['recipientFullName'] - 1],
+                recipient_first_name=row[data['columns']['recipientFirstName'] - 1],
+                gift_message=f'<em>"{row[data["columns"]["giftMessage"] - 1]}"</em>',
+                membership_expiration=row[data['columns']['membershipExpiration'] - 1],
+                membership_level=row[data['columns']['membershipLevel'] - 1],
+                stg_online_order_notes_1=row[data['columns']['guardianOrderNotes'] - 1],
+                guardian_first_name=row[data['columns']['guardianFirstName'] - 1],
+                query_name=row[data['columns']['queryName'] - 1],
                 ))
 
         total_records = len(reader_storage) - 1  # -1 for header row
@@ -92,6 +98,7 @@ def main(**kwargs):
 
         # for each record, generate an email
         for record in working_row_set:
+
             # set new data_obj.templates / data_obj.subjects
             data_object.reset_record_data(record['query_name'])
 
@@ -199,7 +206,7 @@ if __name__ == '__main__':
     prompt = t.substitute(dict(row_number=row_number, iteration_number=record_batch))
 
     cli_selectors = dict(
-        start=['start'],
+        start=['start', ''],
         display=['display'],
         quit=['quit', 'q', 'exit'],
         send=['send'],
@@ -209,7 +216,9 @@ if __name__ == '__main__':
 
     while True:
 
-        resp = input("?:").strip().lower()
+        # resp = input("?:").strip().lower()
+        # todo comment out after dev over
+        resp = 'start'
 
         if resp in cli_selectors.get('start'):
 
