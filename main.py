@@ -209,6 +209,7 @@ if __name__ == '__main__':
 
         resp = input("?:").strip().lower()
 
+        # todo add a "send" setting
         if resp in cli_selectors.get('start'):
 
             mail_mode = 'Save'

@@ -13,6 +13,10 @@ class RecordData:
 
     # so that I remember for later when I refactor this mess...
     # list indices 1,2 are Membership V1/A ... 3,4 are Mem V2/B ... 5,6 are STG
+    # I was in a pinch and didn't have time to make a factory class for producing
+    # the objects I needed so I just hard-coded the templates which matched subjects
+    # using lists
+
     templates = [
         f'{pwd}{sep}templates{sep}v1_giver_template.html',
         f'{pwd}{sep}templates{sep}v1_recipient_template.html',
