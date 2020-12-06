@@ -1,0 +1,58 @@
+{
+  "column": {
+    "queryName": "A",
+    "giverFullName": "BD",
+    "giverSalutation": "K",
+    "giverEmail": "I",
+    "giverNickname": "AL",
+    "recipientFullName": "AK",
+    "recipientFirstName": "BG",
+    "recipientEmail": "BI",
+    "guardianFirstName": "BJ",
+    "guardianOrderNotes": "AZ",
+    "membershipLevel": "BB",
+    "membershipExpiration": "AY",
+    "giftMessage": "AX"
+  },
+  "default": {
+    "startRow": 2,
+    "recordBatch": 3,
+    "mailAction": "Save"
+  },
+  "templatesFolder": "templates",
+  "templatesData": [
+    {
+      "filename": {
+        "giver": "v1_giver_template.html",
+        "recipient": "v1_recipient_template.html"
+      },
+      "subject": {
+        "giver": "Thank You for Your Aquarium Gift Membership Purchase!",
+        "recipient": "You've Been Given the Gift of Membership to the South Carolina Aquarium!"
+      },
+      "queryName": "MEM-Gift_Primary_Web Giver Inc_Acknowledgement Letter"
+    },
+    {
+      "filename": {
+        "giver": "v2_giver_template.html",
+        "recipient": "v2_recipient_template.html"
+      },
+      "subject": {
+        "giver": "Thank You for Your Aquarium Gift Membership Purchase!",
+        "recipient": "You've Been Given the Gift of Membership to the South Carolina Aquarium!"
+      },
+      "queryName": "MEM-Gift_Giver_Web Giver Inc_Acknowledgement Letter"
+    },
+    {
+      "filename": {
+        "giver": "sea_turtle_giver.html",
+        "recipient": "sea_turtle_recipient.html"
+      },
+      "subject": {
+        "giver": "Thank You for Gifting a Sea Turtle Guardianship!",
+        "recipient": "You've Been Given the Gift of a Sea Turtle Guardianship!"
+      },
+      "queryName": "STG-Gift_Giver_Annual_Acknowledgement Email"
+    }
+  ]
+}

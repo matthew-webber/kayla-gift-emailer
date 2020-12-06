@@ -9,19 +9,15 @@ from query_template_matcher import RecordData
 
 def main(**kwargs):
 
-    mail_mode = kwargs.get('mail_mode')  # tells the mail sender whether to display/save/send
-    iter_start_row = kwargs.get('row_number')  # tells the mail sender whether to display/save/send
-    records_per_loop = kwargs.get('iteration_number')  # tells the mail sender whether to display/save/send
+    mail_action = kwargs.get('mail_action')  # tells the mail sender whether to display/save/send
+    iter_start_row = int(kwargs.get('row_number'))  # tells the mail sender whether to display/save/send
+    records_per_loop = int(kwargs.get('iteration_number'))  # tells the mail sender whether to display/save/send
+    data = kwargs.get('data')
 
-    mail_mode = mail_mode if mail_mode else 'Display'
-    iter_start_row = int(iter_start_row) if iter_start_row else 2
+    mail_action = mail_action if mail_action else 'Display'
 
-    records_per_loop = int(records_per_loop) if records_per_loop else 3
-
-    # establish globals
-    EMAIL_TALLY = 0
-    GIVER_MAIL_SUBJECT = 'Thank You for Your Aquarium Gift Membership Purchase!'
-    RECIPIENT_MAIL_SUBJECT = 'You\'ve Been Given the Gift of Membership to the South Carolina Aquarium!'
+    # track number emails processed
+    email_tally = 0
 
     # CSV COLUMN NUMBERS (as of 11/24)
     QUERY_NAME_COL = 1
@@ -114,10 +110,10 @@ def main(**kwargs):
                               recipients=[record['emails'][i]],
                               template_vals=record,
                               template=t,
-                              tally=EMAIL_TALLY,
+                              tally=email_tally,
                               )
 
-                    EMAIL_TALLY += 1
+                    email_tally += 1
 
                     print('\n\n\n')
 
@@ -131,14 +127,14 @@ def main(**kwargs):
                     send_outlook_html_mail(recipients=[record['emails'][i]],
                                            subject=data_object.subjects[i],
                                            body=t.substitute(record),
-                                           message_action=mail_mode
+                                           message_action=mail_action
                                            )
 
-                    EMAIL_TALLY += 1
+                    email_tally += 1
 
 
         print('...Done!')
-        print(f'Total emails generated: {EMAIL_TALLY}')
+        print(f'Total emails generated: {email_tally}')
 
         if iter_end_row == total_records:
             print('Script has reached the end of the file!')
@@ -174,33 +170,39 @@ def main(**kwargs):
 
 if __name__ == '__main__':
 
-    DEFAULT_ROW_NUMBER = 2
-    DEFAULT_ITER_NUMBER = 3
+    from json import load as json_load
+
+    with open('project.json', 'r') as f:
+        project_data = json_load(f)
+
+    defaults = project_data['default']
 
     try:
         row_number = sys.argv[1]
     except IndexError:
-        row_number = DEFAULT_ROW_NUMBER
+        row_number = defaults['startRow']
 
     try:
-        iteration_number = sys.argv[2]
+        record_batch = sys.argv[2]
     except IndexError:
-        iteration_number = DEFAULT_ITER_NUMBER
+        record_batch = defaults['recordBatch']
 
     # start the CLI
+    # todo refactor to posix vs nt
     try:
-        with open('templates/prompt.txt', 'r') as f:
+        with open('cli-prompt.txt', 'r') as f:
             t = Template(f.read())
     except FileNotFoundError:
-        with open(f'{get_pwd_of_this_file()}\\templates\\prompt.txt', 'r') as f:
+        with open(f'{get_pwd_of_this_file()}\\cli-prompt.txt', 'r') as f:
             t = Template(f.read())
 
-    prompt = t.substitute(dict(row_number=row_number, iteration_number=iteration_number))
+    prompt = t.substitute(dict(row_number=row_number, iteration_number=record_batch))
 
     cli_selectors = dict(
         start=['start'],
         display=['display'],
         quit=['quit', 'q', 'exit'],
+        send=['send'],
     )
 
     print(prompt)
@@ -211,11 +213,15 @@ if __name__ == '__main__':
 
         if resp in cli_selectors.get('start'):
 
-            mail_mode = 'Save'
+            action = 'Save'
 
         elif resp in cli_selectors.get('display'):
 
-            mail_mode = 'Display'
+            action = 'Display'
+
+        elif resp in cli_selectors.get('send'):
+
+            action = 'Send'
 
         elif resp in cli_selectors.get('quit'):
 
@@ -229,6 +235,6 @@ if __name__ == '__main__':
         break
 
     if resp != 'quit':
-        main(mail_mode=mail_mode, row_number=row_number, iteration_number=iteration_number)
+        main(mail_action=action, row_number=row_number, iteration_number=record_batch, data=project_data)
 
     say_goodbye()
