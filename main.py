@@ -179,8 +179,12 @@ if __name__ == '__main__':
 
     from json import load as json_load
 
-    with open('project.json', 'r') as f:
-        project_data = json_load(f)
+    try:
+        with open('project.json', 'r') as f:
+            project_data = json_load(f)
+    except FileNotFoundError:
+        with open(f'{get_pwd_of_this_file()}\\project.json', 'r') as f:
+            project_data = json_load(f)
 
     defaults = project_data['default']
 
