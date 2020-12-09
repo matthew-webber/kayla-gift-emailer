@@ -47,7 +47,6 @@ def main(**kwargs):
     # establish helper objects
     working_row_set = []  # contains dicts of rows for which emails are currently being generated
     reader_storage = []  # takes rows from csv.reader so file can close / # rows determined / etc.
-    im_done = False  # todo confirm can remove
 
     data_object = RecordData(data)
     # print(data_object.csv_file + ' is do csv file')
@@ -179,6 +178,7 @@ if __name__ == '__main__':
 
     from json import load as json_load
 
+    # todo refactor to posix vs nt
     try:
         with open('project.json', 'r') as f:
             project_data = json_load(f)
@@ -220,11 +220,11 @@ if __name__ == '__main__':
 
     while True:
 
-        # resp = input("?:").strip().lower()
+        resp = input("?:").strip().lower()
         # todo comment out after dev over
-        resp = 'start'
+        # todo add an env var checker for "prod" vs "dev"
+        # resp = 'start'
 
-        # todo add a "send" setting
         if resp in cli_selectors.get('start'):
 
             action = 'Save'
@@ -256,3 +256,9 @@ if __name__ == '__main__':
              data=project_data)
 
     say_goodbye()
+
+
+# todo add a better summary of what was generated instead of just one name per record
+# todo add a more helpful readme for reminding how to run the thing, how to update the json file, etc.
+# todo move the member_data.csv to an examples folder and say "if no csv in dir, get the example one"
+# todo add the "custom" thing to the project instead of being a submodule / something that needs to be dl'ed
