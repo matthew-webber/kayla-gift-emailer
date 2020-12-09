@@ -262,3 +262,4 @@ if __name__ == '__main__':
 # todo add a more helpful readme for reminding how to run the thing, how to update the json file, etc.
 # todo move the member_data.csv to an examples folder and say "if no csv in dir, get the example one"
 # todo add the "custom" thing to the project instead of being a submodule / something that needs to be dl'ed
+# todo add .bat files for easy running on Windows
