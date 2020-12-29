@@ -11,8 +11,8 @@ from custom.excel_funcs import excel_col_to_number
 def main(**kwargs):
 
     mail_action = kwargs.get('mail_action')  # tells the mail sender whether to display/save/send
-    iter_start_row = int(kwargs.get('row_number'))  # tells the mail sender whether to display/save/send
-    records_per_loop = int(kwargs.get('iteration_number'))  # tells the mail sender whether to display/save/send
+    iter_start_row = int(kwargs.get('row_number'))
+    records_per_loop = int(kwargs.get('iteration_number'))
     data = kwargs.get('data')
 
     mail_action = mail_action if mail_action else 'Display'
@@ -22,8 +22,9 @@ def main(**kwargs):
         col_letters = data['columns'][column]
         data['columns'][column] = excel_col_to_number(col_letters)
 
-    # track number emails processed
+    # track number emails/rows processed
     email_tally = 0
+    record_tally = 0
 
     # CSV COLUMN NUMBERS (as of 11/24)
     QUERY_NAME_COL = 1
@@ -63,18 +64,23 @@ def main(**kwargs):
     # begin iteration over each record
     while run_loop is True:
 
-        if len(reader_storage) > iter_start_row + records_per_loop:
+        if len(reader_storage) >= iter_start_row + records_per_loop:
             iter_end_row = iter_start_row + records_per_loop
+            im_done = False
         else:
-            iter_end_row = iter_start_row + (len(reader_storage) - iter_start_row)
+            # because of the way I'm using the "start/end rows" to slice the reader_storage variable, using the len() of
+            # reader_storage and subtracting the "human readable" iter_start_row results in a end row that is off by 1
+            iter_end_row = iter_start_row + (len(reader_storage) - iter_start_row) + 1  # todo math this better
             im_done = True
 
-        # '- 1' to accommodate for 0-index
-        for row in reader_storage[iter_start_row - 1:iter_end_row - 1]:
+        # start processing of row "chunk" before pausing for user input to continue or quit
+        for row in reader_storage[iter_start_row - 1:iter_end_row - 1]:  # '- 1' to accommodate for 0-index
 
-            # adjust the gift message value if none included
-            if row[MESSAGE_COl -1] == '':
-                row[MESSAGE_COl -1] = 'Enjoy your membership!'
+            record_tally += 1
+
+            # set the template values for the row being processed
+            if row[MESSAGE_COl - 1] == '':
+                row[MESSAGE_COl - 1] = 'Enjoy your membership!'  # adjust the gift message value if none included
             print(row[GIVER_FULLNAME_COL - 1])
             working_row_set.append(dict(
                 giver_fullname=row[data['columns']['giverFullName'] - 1],
@@ -91,8 +97,8 @@ def main(**kwargs):
                 query_name=row[data['columns']['queryName'] - 1],
                 ))
 
-        total_records = len(reader_storage) - 1  # -1 for header row
-        records_remaining = len(reader_storage) - iter_end_row
+        # total_records = len(reader_storage) - 1  # -1 for header row
+        records_remaining = len(reader_storage) - record_tally - 1
         print(f'Processing {len(working_row_set)} records...')
 
         # for each record, generate an email
@@ -138,21 +144,17 @@ def main(**kwargs):
 
                     email_tally += 1
 
-
         print('...Done!')
         print(f'Total emails generated: {email_tally}')
+        print(f'Records processed: {record_tally} of {len(reader_storage) - 1}')
 
-        if iter_end_row == total_records:
-            print('Script has reached the end of the file!')
+        if im_done:
+            print('All records processed!')
             run_loop = False  # end program
 
         else:
-
-            print(f'Records remaining: {records_remaining}')
             continue_loop = True
-
             print('Press enter to continue or q to quit.')
-
             while continue_loop is True:
 
                 x = input('?:').strip().lower()
