@@ -35,7 +35,7 @@ def main(**kwargs):
 
     RECIPIENT_FULLNAME_COL = 37
     RECIPIENT_FIRSTNAME_COL = 59  # e.g. "Erica" $recipient_first_name-- giver equivalent is "salutation"
-    RECIPIENT_EMAIL_COL = 61
+    RECIPIENT_EMAIL_COL = 61  # col BI
 
     GUARDIAN_FIRSTNAME = 62  # col BJ - will be different than recipient_firstname so added to end
     GUARDIAN_STG_ORDERNOTES = 52  # col AZ
