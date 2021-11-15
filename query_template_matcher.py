@@ -1,8 +1,6 @@
 from funcs import *
 import os
 
-
-
 class RecordData:
 
     if os.name == 'posix':
