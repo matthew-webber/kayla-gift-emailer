@@ -1,0 +1,2 @@
+MEM-Gift_Primary_Web Giver Inc_Acknowledgement Letter = v1
+MEM-Gift_Primary_No_Web_Giver_Info_Acknowledgement_Letter = v2
