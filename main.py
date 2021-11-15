@@ -26,23 +26,7 @@ def main(**kwargs):
     email_tally = 0
     record_tally = 0
 
-    # CSV COLUMN NUMBERS (as of 11/24)
-    QUERY_NAME_COL = 1
-
     GIVER_FULLNAME_COL = 56  # e.g. "Susan Blender" $giver_fullname
-    SALUTATION = 11
-    GIVER_EMAIL_COL = 9
-    GIVER_NICKNAME_COL = 38
-
-    RECIPIENT_FULLNAME_COL = 37
-    RECIPIENT_FIRSTNAME_COL = 59  # e.g. "Erica" $recipient_first_name-- giver equivalent is "salutation"
-    RECIPIENT_EMAIL_COL = 61  # col BI
-
-    GUARDIAN_FIRSTNAME = 62  # col BJ - will be different than recipient_firstname so added to end
-    GUARDIAN_STG_ORDERNOTES = 52  # col AZ
-
-    MEMLEVEL_COL = 54
-    EXPIRATION_COL = 51
     MESSAGE_COl = 50
 
     # establish helper objects
@@ -226,6 +210,13 @@ if __name__ == '__main__':
         # todo comment out after dev over
         # todo add an env var checker for "prod" vs "dev"
         # resp = 'start'
+        
+        # check that the user has added the column for recipient email
+        # before beginning and allow override
+        passed, msg = check_recipient_email_present()
+        print(msg)
+        if not passed:
+            resp = 'quit'
 
         if resp in cli_selectors.get('start'):
 

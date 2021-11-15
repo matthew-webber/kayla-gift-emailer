@@ -70,13 +70,13 @@ class RecordData:
                 return obj
 
     def add_path_to_templates(self):
-        tmeplate_temp = list()
+        template_temp = list()
         for file_string in self.templates:
-            tmeplate_temp.append(
+            template_temp.append(
                 f'{RecordData.pwd}{RecordData.sep}{self.data["templatesFolder"]}{RecordData.sep}{file_string}'
             )
 
-        self.templates = tmeplate_temp
+        self.templates = template_temp
 
 
 if __name__ == '__main__':
