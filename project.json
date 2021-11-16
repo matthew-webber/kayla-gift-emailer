@@ -45,14 +45,25 @@
     },
     {
       "filename": {
-        "giver": "sea_turtle_giver.html",
-        "recipient": "sea_turtle_recipient.html"
+        "giver": "giver_stg_annual.html",
+        "recipient": "recipient_stg_annual.html"
       },
       "subject": {
         "giver": "Thank You for Gifting a Sea Turtle Guardianship!",
         "recipient": "You've Been Given the Gift of a Sea Turtle Guardianship!"
       },
       "queryName": "STG-Gift_Giver_Annual_Acknowledgement Email"
+    },
+    {
+      "filename": {
+        "giver": "giver_stg_monthly.html",
+        "recipient": "recipient_stg_monthly.html"
+      },
+      "subject": {
+        "giver": "Thank You for Gifting a Sea Turtle Guardianship!",
+        "recipient": "You've Been Given the Gift of a Sea Turtle Guardianship!"
+      },
+      "queryName": "STG-Gift_Giver_Monthly_Acknowledgement Email"
     }
   ]
 }

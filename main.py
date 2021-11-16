@@ -65,7 +65,6 @@ def main(**kwargs):
             # set the template values for the row being processed
             if row[MESSAGE_COl - 1] == '':
                 row[MESSAGE_COl - 1] = 'Enjoy your membership!'  # adjust the gift message value if none included
-            print(row[GIVER_FULLNAME_COL - 1])
             working_row_set.append(dict(
                 giver_fullname=row[data['columns']['giverFullName'] - 1],
                 salutation=row[data['columns']['giverSalutation'] - 1],
