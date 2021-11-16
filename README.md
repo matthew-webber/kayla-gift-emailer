@@ -6,10 +6,15 @@
 
 ## Install Instructions (Windows 10)
 
-1. Download [Git for Windows](https://gitforwindows.org/)
-...
-Run 'pip install pywin32'
+1. Download [Git for Windows](https://gitforwindows.org/) and latest version of [Python](https://www.python.org/downloads/)
+2. Download this project's ZIP and extract to folder of choice
+3. Open Git Bash at extracted folder and run below commands:
+```bash
+pip install pywin32
 git submodule add https://github.com/matthew-webber/my_modules my_modules
+```
+4. Copy contents of 'my_modules' to 'custom'
+5. Run ```python main.py``` and below prompt will guide you to the end
 
 
 ```bash
