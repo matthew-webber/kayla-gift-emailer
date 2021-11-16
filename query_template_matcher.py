@@ -1,6 +1,7 @@
 from funcs import *
 import os
 
+
 class RecordData:
 
     if os.name == 'posix':
@@ -17,12 +18,14 @@ class RecordData:
     # using lists
 
     templates = [
-        f'{pwd}{sep}templates{sep}v1_giver_template.html',
-        f'{pwd}{sep}templates{sep}v1_recipient_template.html',
-        f'{pwd}{sep}templates{sep}v2_giver_template.html',
-        f'{pwd}{sep}templates{sep}v2_recipient_template.html',
-        f'{pwd}{sep}templates{sep}sea_turtle_giver.html',
-        f'{pwd}{sep}templates{sep}sea_turtle_recipient.html',
+        f'{pwd}{sep}templates{sep}giver_webgiverinc.html',
+        f'{pwd}{sep}templates{sep}recipient_webgiverinc.html',
+        f'{pwd}{sep}templates{sep}giver_nowebgiver.html',
+        f'{pwd}{sep}templates{sep}recipient_nowebgiver.html',
+        f'{pwd}{sep}templates{sep}giver_stg_annual.html',
+        f'{pwd}{sep}templates{sep}recipient_stg_annual.html',
+        f'{pwd}{sep}templates{sep}giver_stg_monthly.html',
+        f'{pwd}{sep}templates{sep}recipient_stg_monthly.html',
     ]
 
     subjects = [
@@ -32,14 +35,17 @@ class RecordData:
         'You\'ve Been Given the Gift of Membership to the South Carolina Aquarium!',
         'Thank You for Gifting a Sea Turtle Guardianship!',
         'You\'ve Been Given the Gift of a Sea Turtle Guardianship!',
+        'Thank You for Gifting a Sea Turtle Guardianship!',
+        'You\'ve Been Given the Gift of a Sea Turtle Guardianship!',
     ]
-    
+
     csv_file = find_first_with_ext_in_dir('csv')
-    
+
     queries = [
-        'MEM-Gift_Primary_Web Giver Inc_Acknowledgement Letter',  # Mem v1
-        'MEM-Gift_Giver_Web Giver Inc_Acknowledgement Letter',  # mem v2
+        'MEM-Gift_Primary_Web Giver Inc_Acknowledgement Letter',
+        'MEM-Gift_Giver_Web Giver Inc_Acknowledgement Letter',
         'STG-Gift_Giver_Annual_Acknowledgement Email',
+        'STG-Gift_Giver_Monthly_Acknowledgement Email'
     ]
 
     def __init__(self, data):
@@ -81,6 +87,7 @@ class RecordData:
 
 if __name__ == '__main__':
     x = RecordData()
-    x.reset_record_data('MEM-Gift_Primary_Web Giver Inc_Acknowledgement Letter')
+    x.reset_record_data(
+        'MEM-Gift_Primary_Web Giver Inc_Acknowledgement Letter')
     print(x.templates[1])
     print(x.csv_file)
