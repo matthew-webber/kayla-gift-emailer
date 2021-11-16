@@ -4,8 +4,12 @@
 
 ---
 
-1. Run 'pip install pywin32'
-2. git submodule add https://github.com/matthew-webber/my_modules my_modules
+## Install Instructions (Windows 10)
+
+1. Download [Git for Windows](https://gitforwindows.org/)
+...
+Run 'pip install pywin32'
+git submodule add https://github.com/matthew-webber/my_modules my_modules
 
 
 ```bash
