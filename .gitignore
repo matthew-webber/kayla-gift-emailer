@@ -72,3 +72,4 @@ fabric.properties
 venv
 member_data.csv
 MEM-Gift*
+*.pyc
