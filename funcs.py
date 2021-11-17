@@ -1,3 +1,4 @@
+from string import ascii_lowercase
 import os
 import pathlib
 
@@ -118,7 +119,6 @@ def get_email_template(query_column, record, template_dict):
 def check_recipient_email_present():
     
     from json import load as json_load
-    from custom.excel_funcs import excel_col_to_number
     import csv
     from query_template_matcher import RecordData
     
@@ -159,3 +159,30 @@ def check_recipient_email_present():
             return (False, msg)
     
     return (True, 'INFO: Recipient column passed test.')
+
+
+def excel_col_to_number(col):
+    """
+    Converts a column name (in letter form) to a number
+
+    :param col: a column name like "A", "Y", "DBZ", etc.
+    :return: the number corresponding to the column
+    """
+
+    num_equivalents = list()
+    answer = 0
+
+    # "ABC" => [1, 2, 3]
+    for letter in col:
+        num_equivalents.append((ascii_lowercase.index(letter.lower()) + 1))
+
+    answer = 0
+
+    for i, p in enumerate(reversed(num_equivalents)):
+        if i == 0:
+            answer += p
+            continue
+
+        answer += ((26 ** i) * p)
+
+    return answer

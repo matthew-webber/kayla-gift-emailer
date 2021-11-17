@@ -1,4 +1,0 @@
-[submodule "custom"]
-	path = custom
-	url = https://github.com/matthew-webber/my_modules
-	ignore = untracked
