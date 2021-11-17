@@ -1,21 +1,20 @@
-### Links
+## Run
 
-[csv module](https://docs.python.org/3/library/csv.html)
-
----
+```bash
+python main.py
+```
 
 ## Install Instructions (Windows 10)
 
 1. Download [Git for Windows](https://gitforwindows.org/) and latest version of [Python](https://www.python.org/downloads/)
 2. Download this project's ZIP and extract to folder of choice
-3. Open Git Bash at extracted folder and run below commands:
+3. Open Git Bash at extracted folder and run below command
+
 ```bash
 pip install pywin32
-git submodule add https://github.com/matthew-webber/my_modules my_modules
 ```
-4. Copy contents of 'my_modules' to 'custom'
-5. Run ```python main.py``` and below prompt will guide you to the end
 
+4. Run ```python main.py``` and below prompt will appear
 
 ```bash
 
@@ -26,57 +25,62 @@ git submodule add https://github.com/matthew-webber/my_modules my_modules
 |                                      |
 |  To begin, simply follow the prompts |
 |   after ensuring you have read and   |
-|     understand the notice below.     |
+|     understand the info below.       |
 |                             .        |
 |          Happy mailing!      .       |
 |                       ><((('>        |
 +--------------------------------------+
 
-           =====NOTICE=====
+           ===== INFO =====
 
-* Make sure you have the .csv file in
-  the same folder as this script.
+* Make sure you have the Altru export as a
+  .csv file in the same folder as this script
+  and that it's the ONLY .csv file.
 
 * This script will start with the record
-  on row 2 and generate a
+  on row $row_number and generate a
   "giver" email and "recipient" email
   for each record.
 
-* It will iterate over 3 records
+* It will iterate over $iteration_number records
   at a time, pause after each iteration,
   and ask to continue until you tell it
   to stop or until it reaches the last
   record.
 
-* You can change which row the script
-  starts on and how many records it
-  will process at a time, or solely
-  the row it starts on.  You cannot
-  change solely the number of records
-  to process each iteration.  See the
-  examples below.
+* You can add optionial arguments to the run
+  command to perform either of the following:
+
+  1. the "starting row" AND "# of records", or
+  2. the "starting row"
+  
+  * note: there is no "# of records only"
+          argument 
 
 
-Examples:
-(running from command prompt - start on row 10,
-  process 5 records each iteration):
+Examples
+--------
 
-    python path/to/this/script 10 5 (Mac)
+(start on row 10, process 5 records each iteration):
+
     python "C:\Users\your_home_folder_here\path\to\this\script" 10 5 (Windows)
+    python path/to/this/script 10 5 (Mac)
 
-(running from command prompt - start on row 12,
-  process default (3) records each iteration):
+(start on row 12, process default (3) records each iteration):
 
-    python path/to/this/script 12 (Mac)
     python "C:\Users\your_home_folder_here\path\to\this\script" 12 (Windows)
+    python path/to/this/script 12 (Mac)
 
 
---------------------------------------
+Current Settings
+----------------
 
-Starting row: 2
-emails at a time: 3
+Starting row: $row_number
+Emails at a time: $iteration_number
+Target .csv file: 
 
-Right now, the emails you generate are set to
+** Note **
+By default, the emails you generate are set to
 save in your drafts folder as they are created.
 
 Enter "display" to change this, q to "quit",

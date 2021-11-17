@@ -27,7 +27,6 @@ def get_pwd_of_this_file():
     return os.path.dirname(os.path.realpath(__file__))
 
 
-# todo move to custom
 # todo this doesn't really work right if you add a dir to the arguments
 def find_first_with_ext_in_dir(extension, dir=None):
     """
