@@ -121,14 +121,15 @@ def check_recipient_email_present():
     import csv
     from query_template_matcher import RecordData
     
-
+    print('1')
     try:
         with open('project.json', 'r') as f:
             data = json_load(f)
     except FileNotFoundError:
         with open(f'{get_pwd_of_this_file()}\\project.json', 'r') as f:
             data = json_load(f)
-            
+    print('2')
+
     x = RecordData(data=data)
     x.reset_record_data('MEM-Gift_Primary_Web Giver Inc_Acknowledgement Letter')
     

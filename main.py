@@ -175,6 +175,8 @@ if __name__ == '__main__':
     except FileNotFoundError:
         with open(f'{get_pwd_of_this_file()}\\project.json', 'r') as f:
             project_data = json_load(f)
+            
+    print('PROJECT DATA\n==========\n',project_data)
 
     defaults = project_data['default']
 
