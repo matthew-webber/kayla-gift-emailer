@@ -10,6 +10,7 @@
     "membershipExpiration": "AY",
     "guardianOrderNotes": "AZ",
     "membershipLevel": "BB",
+    "giverNicknameNoWebGiver": "BD",
     "recipientFirstName": "BG",
     "recipientEmail": "BK",
     "guardianFirstName": "BL"

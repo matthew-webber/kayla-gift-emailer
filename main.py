@@ -5,6 +5,7 @@ import sys
 from funcs import *
 from query_template_matcher import RecordData
 
+
 def main(**kwargs):
 
     # tells the mail sender whether to display/save/send
@@ -27,7 +28,7 @@ def main(**kwargs):
     MESSAGE_COl = 50
 
     # establish helper objects
-    
+
     # contains dicts of rows for which emails are currently being generated
     working_row_set = []
     # takes rows from csv.reader so file can close / # rows determined / etc.
@@ -67,7 +68,7 @@ def main(**kwargs):
             if row[MESSAGE_COl - 1] == '':
                 # adjust the gift message value if none included
                 row[MESSAGE_COl - 1] = 'Enjoy your membership!'
-                
+
             working_row_set.append(dict(
                 giver_fullname=row[data['columns']['giverFullName'] - 1],
                 salutation=row[data['columns']['giverSalutation'] - 1],
@@ -88,6 +89,12 @@ def main(**kwargs):
                                         ['guardianFirstName'] - 1],
                 query_name=row[data['columns']['queryName'] - 1],
             ))
+
+            # HACK check if the row ID / email type against data.json.
+            # If it's no web giver, change the "membership gifted by" col
+            if row[0] == data_object.data['templatesData'][1]['queryName']:
+                working_row_set[-1].update({'giver_identification': row[data['columns']
+                                            ['giverNicknameNoWebGiver'] - 1]})
 
         # total_records = len(reader_storage) - 1  # -1 for header row
         records_remaining = len(reader_storage) - record_tally - 1
@@ -169,15 +176,15 @@ if __name__ == '__main__':
 
     from json import load as json_load
 
-    # todo refactor to posix vs nt
+    # TODO refactor to posix vs nt
     try:
         with open('project.json', 'r') as f:
             project_data = json_load(f)
     except FileNotFoundError:
         with open(f'{get_pwd_of_this_file()}\\project.json', 'r') as f:
             project_data = json_load(f)
-            
-    print('PROJECT DATA\n==========\n',project_data)
+
+    print('PROJECT DATA\n==========\n', project_data)
 
     defaults = project_data['default']
 
@@ -192,7 +199,7 @@ if __name__ == '__main__':
         record_batch = defaults['recordBatch']
 
     # start the CLI
-    # todo refactor to posix vs nt
+    # TODO refactor to posix vs nt
     try:
         with open('cli-prompt.txt', 'r') as f:
             t = Template(f.read())
@@ -215,8 +222,8 @@ if __name__ == '__main__':
     while True:
 
         resp = input("?:").strip().lower()
-        # todo comment out after dev over
-        # todo add an env var checker for "prod" vs "dev"
+        # TODO comment out after dev over
+        # TODO add an env var checker for "prod" vs "dev"
         # resp = 'start'
 
         # check that the user has added the column for recipient email
@@ -258,9 +265,9 @@ if __name__ == '__main__':
 
     say_goodbye()
 
-
-# todo add a better summary of what was generated instead of just one name per record
-# todo add a more helpful readme for reminding how to run the thing, how to update the json file, etc.
-# todo move the member_data.csv to an examples folder and say "if no csv in dir, get the example one"
-# todo add the "custom" thing to the project instead of being a submodule / something that needs to be dl'ed
-# todo add .bat files for easy running on Windows
+# TODO set value names in data.json "columns" to be equal to the dict values in working_row_set or vice versa
+# TODO add a better summary of what was generated instead of just one name per record
+# TODO add a more helpful readme for reminding how to run the thing, how to update the json file, etc.
+# TODO move the member_data.csv to an examples folder and say "if no csv in dir, get the example one"
+# TODO add the "custom" thing to the project instead of being a submodule / something that needs to be dl'ed
+# TODO add .bat files for easy running on Windows
