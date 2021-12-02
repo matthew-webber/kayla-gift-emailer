@@ -67,6 +67,7 @@ def main(**kwargs):
             if row[MESSAGE_COl - 1] == '':
                 # adjust the gift message value if none included
                 row[MESSAGE_COl - 1] = 'Enjoy your membership!'
+                
             working_row_set.append(dict(
                 giver_fullname=row[data['columns']['giverFullName'] - 1],
                 salutation=row[data['columns']['giverSalutation'] - 1],
