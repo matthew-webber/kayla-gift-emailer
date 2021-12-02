@@ -57,7 +57,7 @@ class RecordData:
         self.templates = list()
         self.subjects = list()
         self.csv_file = RecordData.csv_file
-        self.queries = RecordData.queries
+        self.queries = RecordData.queries  # TODO don't think this is used...
 
     def reset_record_data(self, query_string):
 

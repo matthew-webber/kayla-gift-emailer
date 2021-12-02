@@ -2,6 +2,7 @@ from string import ascii_lowercase
 import os
 import pathlib
 
+
 def say_goodbye():
     print('\nTerminating....')
     print('~~~~ Goodbye ~~~~~')
@@ -115,39 +116,40 @@ def get_email_template(query_column, record, template_dict):
 
     return template_dict.get(record[query_column])
 
+
 def check_recipient_email_present():
-    
+
     from json import load as json_load
     import csv
     from query_template_matcher import RecordData
-    
-    print('1')
+
     try:
         with open('project.json', 'r') as f:
             data = json_load(f)
     except FileNotFoundError:
         with open(f'{get_pwd_of_this_file()}\\project.json', 'r') as f:
             data = json_load(f)
-    print('2')
 
     x = RecordData(data=data)
-    x.reset_record_data('MEM-Gift_Primary_Web Giver Inc_Acknowledgement Letter')
-    
+    x.reset_record_data(
+        'MEM-Gift_Primary_Web Giver Inc_Acknowledgement Letter')
+
     with open(x.csv_file, 'r') as f:
         member_reader = csv.reader(f)
         reader_storage = list()
-        
+
         for row in member_reader:
             reader_storage.append(row)
 
-    recipient_email_col = data["columns"]["recipientEmail"]  # store for msg just in case (being lazy bc data is written over below to a column number)
-    
+    # store for msg just in case (being lazy bc data is written over below to a column number)
+    recipient_email_col = data["columns"]["recipientEmail"]
+
     # convert column letters to numbers from JSON data
-    
+
     for column in data['columns'].keys():
         col_letters = data['columns'][column]
         data['columns'][column] = excel_col_to_number(col_letters)
-    
+
     msg = ''
     # print(data['columns']['recipientEmail'])
     for i, row in enumerate(reader_storage):
@@ -157,7 +159,7 @@ def check_recipient_email_present():
         except IndexError:
             msg += f'\n\n***WARNING*** It looks like you don\'t have a "Recipient Email" (column {recipient_email_col}) or there is a missing value at the above row.'
             return (False, msg)
-    
+
     return (True, 'INFO: Recipient column passed test.')
 
 
