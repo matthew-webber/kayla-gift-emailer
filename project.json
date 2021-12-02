@@ -4,15 +4,15 @@
     "giverFullName": "D",
     "giverSalutation": "K",
     "giverEmail": "I",
-    "giverNickname": "AL",
     "recipientFullName": "AK",
-    "recipientFirstName": "BG",
-    "recipientEmail": "BK",
-    "guardianFirstName": "BL",
+    "giverNickname": "AL",
+    "giftMessage": "AX",
+    "membershipExpiration": "AY",
     "guardianOrderNotes": "AZ",
     "membershipLevel": "BB",
-    "membershipExpiration": "AY",
-    "giftMessage": "AX"
+    "recipientFirstName": "BG",
+    "recipientEmail": "BK",
+    "guardianFirstName": "BL"
   },
   "default": {
     "startRow": 2,
